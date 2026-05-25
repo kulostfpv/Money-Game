@@ -386,9 +386,17 @@
         loadQuiz();
     }
 
-    function finishQuiz() {
+        function finishQuiz() {
         document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('screen-userdata-form').classList.remove('hidden');
+        
+        if (currentMode === 'official') {
+            // 公式判定の場合は、損失計算のためのユーザーデータ入力フォームを表示
+            document.getElementById('screen-userdata-form').classList.remove('hidden');
+        } else {
+            // みんなの道場（UGC）の場合は、直接道場の結果画面へ遷移
+            updateUGCResultScreen();
+            document.getElementById('screen-ugc-result').classList.remove('hidden');
+        }
     }
 
     function calculateLifetimeLoss(age, annualIncome, scores) {
