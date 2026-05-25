@@ -16,7 +16,6 @@
     h1 { text-align: center; font-size: 1.4em; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
     h2 { font-size: 1.2em; color: var(--dark); border-left: 4px solid var(--primary); padding-left: 10px; margin-top: 30px;}
     
-    /* 汎用ボタン */
     .submit-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
     .submit-btn:hover { opacity: 0.9; }
     
@@ -39,27 +38,33 @@
     .res-+1 { border-left-color: #71dd37; }
     .res-0 { border-left-color: var(--warning); }
     .res--1 { border-left-color: var(--danger); }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: bold; color: #fff; margin-bottom: 10px; }
+    
+    .score-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.9em; font-weight: bold; color: #fff; margin-bottom: 10px; }
     .bg-+2 { background: var(--success); }
     .bg-+1 { background: #71dd37; }
     .bg-0 { background: var(--warning); color: #333; }
     .bg--1 { background: var(--danger); }
-    .exp-box { font-size: 0.95em; background: #fff; padding: 12px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px; }
     
-    /* 評価ボタン（UGC用） */
+    .exp-box { font-size: 0.95em; background: #fff; padding: 12px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px; line-height: 1.5;}
+    
+    /* 評価ボタン */
     .rating-box { margin-top: 15px; display: flex; gap: 10px; }
     .rating-btn { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-weight: bold; background: #fff; }
     .rating-btn.good:hover { background: #e8f5e9; border-color: var(--success); color: var(--success); }
     .rating-btn.bad:hover { background: #ffebee; border-color: var(--danger); color: var(--danger); }
     
-    /* フォーム (問題作成) */
+    /* フォーム */
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
     .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
     
-    /* プレミアムロック */
+    /* プレミアム & AI相談UI */
     .premium-lock { text-align: center; padding: 30px 20px; background: #fffdf5; border: 1px dashed var(--gold); border-radius: 8px; margin-top: 20px;}
-    .chat-window { border: 1px solid #ddd; border-radius: 8px; height: 300px; display: flex; flex-direction: column; background: #f9f9f9; opacity: 0.5; pointer-events: none; }
+    .chat-window { border: 1px solid #ddd; border-radius: 8px; height: auto; min-height: 200px; display: flex; flex-direction: column; background: #f9f9f9; padding: 15px; margin-top: 15px; }
+    .ai-message { background:#e9ecef; padding:15px; border-radius:8px; display:inline-block; max-width: 95%; color:#333; line-height: 1.6; text-align: left; }
+    
+    .text-danger { color: var(--danger); font-weight: bold; }
+    .text-black-bold { color: #000; font-weight: bold; font-size: 1.05em; display: block; margin-top: 10px; border-top: 1px solid #ccc; padding-top: 10px; }
     
     .hidden { display: none; }
 </style>
@@ -85,7 +90,7 @@
     <div id="screen-ugc" class="hidden">
         <h1>みんなの道場（UGC）</h1>
         <div id="ugc-start">
-            <p>全国のユーザーが作成した問題データベースから、毎回ランダムに15問が出題されます。大衆の心理と罠を学び、反復学習に活用してください。</p>
+            <p>全国のユーザーが作成した問題データベースから、毎回ランダムに15問が出題されます。</p>
             <button class="submit-btn" onclick="startQuiz('ugc')" style="background: var(--success);">道場のテストを開始する</button>
         </div>
     </div>
@@ -101,7 +106,6 @@
     <div id="screen-ugc-result" class="hidden">
         <h1 style="color:var(--success);">道場 修了</h1>
         <p style="text-align:center; font-weight:bold;">あなたの獲得スコア: <span id="ugc-score"></span></p>
-        <p style="text-align:center; font-size:0.9em; color:var(--gray);">今後のアルゴリズム改善のため、各問題への評価（良問/悪問）にご協力ください。</p>
         <div id="ugc-result-list"></div>
         <button class="submit-btn" onclick="switchTab('ugc')" style="background:var(--dark);">道場トップに戻る</button>
     </div>
@@ -118,12 +122,12 @@
             </select>
         </div>
         <div class="form-group">
-            <label>問題文</label>
-            <textarea id="form-text" rows="2" placeholder="直面した状況を入力"></textarea>
+            <label>問題文 (15文字以上 / 「。」「？」必須)</label>
+            <textarea id="form-text" rows="2" placeholder="直面した状況を具体的に入力してください。"></textarea>
         </div>
         <div class="form-group" style="border-left: 3px solid var(--success); padding-left: 10px;">
             <label>選択肢 A (最善: +2点)</label>
-            <input type="text" id="form-opt2">
+            <input type="text" id="form-opt2" placeholder="各選択肢は3文字以上">
         </div>
         <div class="form-group" style="border-left: 3px solid #71dd37; padding-left: 10px;">
             <label>選択肢 B (良: +1点)</label>
@@ -138,12 +142,6 @@
             <input type="text" id="form-optminus">
         </div>
         <button class="submit-btn" onclick="addCustomQuestion()">問題をシステムに追加</button>
-
-        <div class="premium-lock">
-            <h3 style="color:var(--gold); margin-top:0;">👑 クリエイター・アナリティクス</h3>
-            <p style="font-size:0.9em;">自作問題の解答分布データと、大衆がどの罠に落ちたかを分析できます。</p>
-            <button class="submit-btn" style="background:var(--gold); width:auto; padding:10px 30px;">データをアンロック (月額 980円)</button>
-        </div>
     </div>
 
     <div id="screen-status" class="hidden">
@@ -158,19 +156,20 @@
                 <div id="score-display"></div>
             </div>
             <h2>分野別ステータス</h2>
-            <div id="radar-charts" style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee;"></div>
+            <div id="radar-charts" style="margin-bottom: 20px;"></div>
             
-            <div class="premium-lock" style="margin-bottom: 30px;">
-                <h3 style="color:var(--gold); margin-top:0;">🤖 AIライフプランナー (Oracle)</h3>
-                <p style="font-size:0.9em;">あなたのパラメータの弱点を分析し、具体的な改善ロードマップを提示します。</p>
+            <div class="premium-lock" style="margin-bottom: 30px; text-align: left;">
+                <h3 style="color:var(--gold); margin-top:0; text-align:center;">🤖 AIライフプランナー (Oracle)</h3>
                 <div class="chat-window">
-                    <div style="flex:1; padding:10px;">
-                        <div style="background:#e9ecef; padding:10px; border-radius:8px; display:inline-block;">
-                            【現状分析】時間リテラシーに致命的な弱点があります。<br>生涯損失試算：約4,500万円。
-                        </div>
+                    <div class="ai-message">
+                        【現状分析】解答履歴を分析しました。あなたのパラメータは<span class="text-danger">「時間リテラシー」に致命的な弱点（マイナス値）</span>が存在します。<br><br>
+                        【生涯損失試算】目先のタイパ追求や受動的な情報収集を継続した場合、寿命の切り売りと機会損失により、生涯で<span class="text-danger" style="font-size: 1.15em;">約4,500万円の逸失利益</span>が発生します。<br>
+                        <span class="text-black-bold">【即時実行タスク】直ちに目的のないショート動画の視聴を停止し、一次情報へのアクセスと実証実験にのみ可処分時間を投資してください。</span>
                     </div>
                 </div>
-                <button class="submit-btn" style="background:var(--gold); width:auto; padding:10px 30px; margin-top:10px;">プランに加入して相談する</button>
+                <div style="text-align: center;">
+                    <button class="submit-btn" style="background:var(--gold); width:auto; padding:10px 30px; margin-top:15px;">プレミアムプランで詳細なロードマップを生成</button>
+                </div>
             </div>
 
             <h2>公式15問の通信簿と改善提案</h2>
@@ -180,10 +179,6 @@
 </div>
 
 <script>
-    // 【NGワードリスト】（悪意ある投稿やスパムをクライアント側でブロック）
-    const ngWords = ["死ね", "殺す", "馬鹿", "バカ", "アホ", "ゴミ", "クズ", "カス", "ウンコ", "詐欺", "犯罪", "自殺", "レイプ", "暴力"];
-
-    // 【公式 厳選15問】（一切省略なし）
     const officialQuestions = [
         { mainCategory: "消費", category: "【消費（最重要）】", text: "移動手段として自動車が必要になりました。あなたの行動は？", options: [
             { text: "身の丈に合った中古の軽自動車やコンパクトカーを現金一括で買う", score: 2, exp: "資産価値の目減りを最小限に抑え、余計な金利手数料を完全に排除した最善の選択です。" },
@@ -277,32 +272,30 @@
         ]}
     ];
 
-    // 【UGCデータベース（モック）】
     let ugcDatabase = [
-        { mainCategory: "消費", category: "【UGC: 浪費の罠】", text: "「初回無料」のサブスクを登録した後、どうしますか？", options: [
-            { text: "カレンダーに解約日をアラーム設定しておく", score: 2, exp: "自己管理能力が高いです。" }, { text: "無料期間が終わる前に手動で解約する", score: 1, exp: "基本はできています。" }, { text: "忘れていて1ヶ月分だけ払ってしまう", score: 0, exp: "企業の狙い通りです。" }, { text: "解約方法が分からず放置する", score: -1, exp: "最悪の養分です。" }
+        { mainCategory: "消費", category: "【UGC: 浪費の罠】", text: "「初回無料」のサブスクリプションを登録した後、どう対処しますか？", options: [
+            { text: "カレンダーに解約日をアラーム設定しておく", score: 2, exp: "自己管理能力が高いです。" }, 
+            { text: "無料期間が終わる前に手動で解約する", score: 1, exp: "基本はできています。" }, 
+            { text: "忘れていて1ヶ月分だけ払ってしまう", score: 0, exp: "企業の狙い通りです。" }, 
+            { text: "解約方法が分からず放置する", score: -1, exp: "最悪の養分です。" }
         ]}
-    ]; // 実際にはここに数百問が蓄積され、そこから15問が抽出される
+    ];
 
-    // 状態管理
-    let currentMode = ''; // 'official' or 'ugc'
+    let currentMode = '';
     let questions = [];
     let currentIdx = 0;
     let scoreLog = [];
     let categoryScores = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
     let categoryMax = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
 
-    // タブ切り替え
     function switchTab(tab) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
-        document.getElementById('quiz-screen').classList.add('hidden'); // クイズ中の場合は隠す
-        
+        document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById(`tab-${tab}`).classList.add('active');
         document.getElementById(`screen-${tab}`).classList.remove('hidden');
     }
 
-    // クイズの初期化と開始
     function startQuiz(mode) {
         currentMode = mode;
         currentIdx = 0;
@@ -310,8 +303,7 @@
         categoryScores = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
         categoryMax = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
 
-        // 問題のセットアップ（コピーしてシャッフル）
-        let base = mode === 'official' ? officialQuestions : ugcDatabase; // ※モックではUGC問題数が少ないためそのまま使用
+        let base = mode === 'official' ? officialQuestions : ugcDatabase;
         questions = JSON.parse(JSON.stringify(base));
         
         questions.forEach(q => {
@@ -332,7 +324,6 @@
         loadQuiz();
     }
 
-    // 問題の描画
     function loadQuiz() {
         if (currentIdx < questions.length) {
             const q = questions[currentIdx];
@@ -351,7 +342,6 @@
         }
     }
 
-    // 選択肢の処理
     function handleSelect(questionObj, selectedOption) {
         if(currentMode === 'official') {
             categoryScores[questionObj.mainCategory] += selectedOption.score;
@@ -368,10 +358,8 @@
         loadQuiz();
     }
 
-    // クイズ終了の分岐
     function finishQuiz() {
         document.getElementById('quiz-screen').classList.add('hidden');
-        
         if (currentMode === 'official') {
             updateStatusScreen();
             switchTab('status');
@@ -381,11 +369,9 @@
         }
     }
 
-    // 【UGC用】結果画面と「良問/悪問」評価UIの描画
     function updateUGCResultScreen() {
         const totalScore = scoreLog.reduce((sum, item) => sum + item.score, 0);
         document.getElementById('ugc-score').textContent = `${totalScore} 点`;
-
         const resList = document.getElementById('ugc-result-list');
         resList.innerHTML = '';
         
@@ -396,7 +382,7 @@
             
             div.innerHTML = `
                 <div style="font-weight:bold; margin-bottom:10px;">Q. ${item.qText}</div>
-                <div style="font-size:0.9em; margin-bottom:5px;">選択: 「${item.selectedText}」 <span class="badge bg-${sign}">${sign}点</span></div>
+                <div style="font-size:0.95em; margin-bottom:5px;">選択: 「${item.selectedText}」 <span class="score-badge bg-${sign}">${sign}点</span></div>
                 <div class="exp-box">${item.exp}</div>
                 <div class="rating-box">
                     <button class="rating-btn good" onclick="submitRating(${index}, 'good')">👍 良問</button>
@@ -408,13 +394,11 @@
     }
 
     function submitRating(index, type) {
-        // ボタンのUIを変更して二重投票を防止（モック）
         const btns = document.querySelectorAll(`#ugc-result-list .result-item:nth-child(${index + 1}) .rating-btn`);
         btns.forEach(btn => { btn.disabled = true; btn.style.opacity = '0.5'; });
-        alert(type === 'good' ? "「良問」として評価しました。" : "「悪問」として報告しました。一定数の報告で自動削除されます。");
+        alert(type === 'good' ? "「良問」として評価しました。" : "「悪問」として報告しました。一定数の報告で自動非表示になります。");
     }
 
-    // 【公式用】ステータス画面の描画
     function updateStatusScreen() {
         document.getElementById('status-uncompleted').classList.add('hidden');
         document.getElementById('status-completed').classList.remove('hidden');
@@ -449,11 +433,17 @@
             const div = document.createElement('div');
             const sign = item.score > 0 ? `+${item.score}` : `${item.score}`;
             div.className = `result-item res-${sign}`;
-            let adviceHtml = (item.score <= 0 && item.advice) ? `<div class="advice-box">💡【改善アドバイス】<br>${item.advice}</div>` : '';
+            
+            // アドバイスがある場合のみ（悪手を選んだ場合）
+            let adviceHtml = '';
+            if (item.score <= 0 && item.advice) {
+                adviceHtml = `<div class="text-black-bold">💡改善行動: ${item.advice}</div>`;
+            }
+
             div.innerHTML = `
                 <div style="font-size:0.85em; color:var(--gray); font-weight:bold;">${item.category}</div>
                 <div style="font-weight:bold; margin:8px 0;">Q. ${item.qText}</div>
-                <div style="margin-bottom:10px;">あなたの選択: <b>「${item.selectedText}」</b> <span class="badge bg-${sign}">${sign}点</span></div>
+                <div style="margin-bottom:10px;">あなたの選択: <b>「${item.selectedText}」</b> <span class="score-badge bg-${sign}">獲得: ${sign}点</span></div>
                 <div class="exp-box">${item.exp}</div>
                 ${adviceHtml}
             `;
@@ -461,7 +451,15 @@
         });
     }
 
-    // 【NGワード検知付き】問題追加ロジック
+    // 投稿の構造的エントロピー判定
+    function isValidQuestion(text) {
+        if (text.length < 15) return { valid: false, reason: "問題文が短すぎます。具体的な状況を15文字以上で記述してください。" };
+        if (/(.)\1{3,}/.test(text)) return { valid: false, reason: "無意味な連続文字が含まれています。" };
+        if (!/[ぁ-んァ-ン一-龥]/.test(text)) return { valid: false, reason: "日本語の文章として認識できません。" };
+        if (!/[。？?]/g.test(text)) return { valid: false, reason: "文章が成立していません。文末に「。」や「？」をつけてください。" };
+        return { valid: true };
+    }
+
     function addCustomQuestion() {
         const text = document.getElementById('form-text').value;
         const opt2 = document.getElementById('form-opt2').value;
@@ -470,20 +468,17 @@
         const optminus = document.getElementById('form-optminus').value;
         
         if (!text || !opt2 || !opt1 || !opt0 || !optminus) {
-            alert('すべての項目を入力してください。');
-            return;
+            alert('すべての項目を入力してください。'); return;
         }
 
-        // NGワードのバリデーション
-        const allInputText = [text, opt2, opt1, opt0, optminus].join(" ");
-        const foundNgWord = ngWords.find(word => allInputText.includes(word));
-        
-        if (foundNgWord) {
-            alert(`【エラー】不適切な単語（${foundNgWord}）が含まれているため、投稿できません。`);
-            return;
+        const validation = isValidQuestion(text);
+        if (!validation.valid) {
+            alert(`【投稿エラー】${validation.reason}`); return;
+        }
+        if (opt2.length < 3 || opt1.length < 3 || opt0.length < 3 || optminus.length < 3) {
+            alert('【投稿エラー】各選択肢は最低3文字以上で具体的に記述してください。'); return;
         }
 
-        // バリデーション通過後、UGCデータベースに追加
         ugcDatabase.push({
             mainCategory: document.getElementById('form-category').value.replace('【', '').replace('】', ''),
             category: document.getElementById('form-category').value,
@@ -496,9 +491,7 @@
             ]
         });
         
-        alert('道場データベースに追加しました！「みんなの道場」タブからランダムに出題されます。');
-        
-        // フォームリセット
+        alert('判定をクリアしました。道場データベースに追加します！');
         document.getElementById('form-text').value = '';
         document.getElementById('form-opt2').value = '';
         document.getElementById('form-opt1').value = '';
