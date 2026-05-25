@@ -3,181 +3,331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>マネーリテラシー残酷判定テスト</title>
+<title>次世代マネーリテラシー判定プラットフォーム</title>
 <style>
-    body { font-family: sans-serif; background-color: #f4f4f9; padding: 20px; line-height: 1.6; }
-    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h1 { color: #333; font-size: 1.5em; text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
-    .q-area { font-weight: bold; color: #0056b3; margin-bottom: 10px; }
-    .question { font-size: 1.2em; margin-bottom: 20px; font-weight: bold; }
-    .options button { display: block; width: 100%; padding: 15px; margin-bottom: 15px; border: 2px solid #ddd; border-radius: 8px; background: #fdfdfd; cursor: pointer; text-align: left; font-size: 1em; transition: 0.2s; }
-    .options button:hover { background: #eef; border-color: #0056b3; }
+    :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --gray: #6c757d; }
+    body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; line-height: 1.5; }
+    .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    
+    /* タブ切り替え */
+    .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; }
+    .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: bold; color: var(--gray); }
+    .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+    
+    h1 { text-align: center; font-size: 1.6em; margin-bottom: 20px; }
+    .q-area { font-size: 0.9em; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
+    .question { font-size: 1.2em; font-weight: bold; margin-bottom: 20px; }
+    
+    /* 4択ボタン */
+    .options button { display: block; width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #eee; border-radius: 8px; background: #fafafa; cursor: pointer; text-align: left; font-size: 0.95em; transition: 0.2s; }
+    .options button:hover { background: #f0f4f8; border-color: var(--primary); }
+    
+    /* 結果表示 */
+    .rank-box { text-align: center; background: #eef2f7; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .rank-title { font-size: 1.1em; font-weight: bold; }
+    .rank-number { font-size: 2.2em; font-weight: bold; color: var(--danger); margin: 10px 0; }
+    .score-detail { font-size: 1.1em; font-weight: bold; color: var(--primary); }
+    
+    .result-item { margin-bottom: 20px; padding: 15px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9; }
+    .res-+2 { border-left-color: var(--success); }
+    .res-+1 { border-left-color: #71dd37; }
+    .res-0 { border-left-color: var(--warning); }
+    .res--1 { border-left-color: var(--danger); }
+    
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; color: #fff; margin-bottom: 5px; }
+    .bg-+2 { background: var(--success); }
+    .bg-+1 { background: #71dd37; }
+    .bg-0 { background: var(--warning); color: #333; }
+    .bg--1 { background: var(--danger); }
+
+    /* フォーム */
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .submit-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; }
+    
     .hidden { display: none; }
-    .result-item { margin-bottom: 20px; padding: 15px; border-radius: 8px; border-left: 5px solid #ccc; background: #fafafa; }
-    .result-item.foolish { border-left-color: #dc3545; background: #fff8f8; }
-    .result-item.correct { border-left-color: #28a745; background: #f8fff9; }
-    .judgment { font-weight: bold; margin-bottom: 5px; }
-    .foolish .judgment { color: #dc3545; }
-    .correct .judgment { color: #28a745; }
-    .restart-btn { display: block; width: 100%; padding: 15px; background: #333; color: #fff; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; margin-top: 30px; }
-    .restart-btn:hover { background: #555; }
 </style>
 </head>
 <body>
 
-<div class="container" id="app">
-    <h1>マネーリテラシー判定</h1>
-    
-    <div id="quiz-screen">
-        <div class="q-area" id="q-area"></div>
-        <div class="question" id="q-text"></div>
-        <div class="options" id="q-options"></div>
+<div class="container">
+    <div class="tabs">
+        <div class="tab active" id="tab-play" onclick="switchTab('play')">クイズに挑戦</div>
+        <div class="tab" id="tab-create" onclick="switchTab('create')">問題を作成する</div>
     </div>
 
-    <div id="result-screen" class="hidden">
-        <h2>あなたの選択と現実</h2>
-        <div id="result-list"></div>
-        <button class="restart-btn" onclick="location.reload()">もう一度やり直す</button>
+    <div id="screen-play">
+        <div id="quiz-area">
+            <div class="q-area" id="q-category"></div>
+            <div class="question" id="q-text"></div>
+            <div class="options" id="q-options"></div>
+        </div>
+        
+        <div id="result-area" class="hidden">
+            <h1>判定結果</h1>
+            <div class="rank-box">
+                <div class="rank-title">あなたの全国暫定順位</div>
+                <div class="rank-number" id="rank-display">計算中...</div>
+                <div class="score-detail" id="score-display"></div>
+            </div>
+            <h2>各行動の通信簿</h2>
+            <div id="result-list"></div>
+            <button class="submit-btn" onclick="restartQuiz()" style="background:#333; margin-top:15px;">もう一度挑戦する</button>
+        </div>
+    </div>
+
+    <div id="screen-create" class="hidden">
+        <h1>オリジナル問題の投稿</h1>
+        <p style="font-size:0.85em; color:var(--gray);">※投稿した問題は即座に「クイズに挑戦」の末尾に追加されます。</p>
+        <div class="form-group">
+            <label>ジャンル</label>
+            <select id="form-category">
+                <option value="【消費（最重要）】">消費</option>
+                <option value="【投資の勘違い（罠）】">投資の勘違い</option>
+                <option value="【家計管理】">家計管理</option>
+                <option value="【資産運用】">資産運用</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>問題文（どのような局面に直面したか）</label>
+            <textarea id="form-text" rows="2" placeholder="例：臨時のボーナス5万円が入りました。どうしますか？"></textarea>
+        </div>
+        <div class="form-group" style="border-left: 4px solid var(--success); padding-left: 10px;">
+            <label>選択肢 A (最善の行動: +2点)</label>
+            <input type="text" id="form-opt2" placeholder="例：全額をインデックス投資の原資として証券口座へ回す">
+            <input type="text" id="form-exp2" placeholder="解説：将来の資産形成に直結する合理的な判断です。" style="margin-top:5px; font-size:0.9em;">
+        </div>
+        <div class="form-group" style="border-left: 4px solid #71dd37; padding-left: 10px;">
+            <label>選択肢 B (良い行動: +1点)</label>
+            <input type="text" id="form-opt1" placeholder="例：普段買えない専門書を数冊買い、残りは貯金する">
+            <input type="text" id="form-exp1" placeholder="解説：自己投資と貯蓄のバランスが取れています。" style="margin-top:5px; font-size:0.9em;">
+        </div>
+        <div class="form-group" style="border-left: 4px solid var(--warning); padding-left: 10px;">
+            <label>選択肢 C (普通の行動: 0点) ※大衆がよくやるパターン</label>
+            <input type="text" id="form-opt0" placeholder="例：少し贅沢をして、美味しいご飯を食べて使い切る">
+            <input type="text" id="form-exp0" placeholder="解説：プラスにもマイナスにもなりませんが、資産は増えません。" style="margin-top:5px; font-size:0.9em;">
+        </div>
+        <div class="form-group" style="border-left: 4px solid var(--danger); padding-left: 10px;">
+            <label>選択肢 D (最悪の行動: -1点)</label>
+            <input type="text" id="form-optminus" placeholder="例：これを元手に競馬やパチンコで増やそうとする">
+            <input type="text" id="form-expminus" placeholder="解説：ギャンブルの胴元を太らせるだけの最も愚かな行為です。" style="margin-top:5px; font-size:0.9em;">
+        </div>
+        <button class="submit-btn" onclick="addCustomQuestion()">この問題をシステムに組み込む</button>
     </div>
 </div>
 
 <script>
-    const questions = [
+    // 初期クイズデータ（5問、消費・勘違い投資に重点）
+    const defaultQuestions = [
         {
-            area: "【第1分野：生活設計・家計管理】",
-            text: "毎月のお給料が入りました。お金の管理をどうしますか？",
+            category: "【消費（最重要）】",
+            text: "移動手段として自動車が必要になりました。あなたの行動は？",
             options: [
-                { 
-                    text: "家計簿を一切つけず、自分が欲しいものを自由に買う", 
-                    isCorrect: false,
-                    judgment: "極めて愚か",
-                    explanation: "支出を把握せず欲望のままに消費する行為は、穴の空いたバケツに水を注ぐのと同じです。一生お金に困り続ける典型的な貧困層の行動です。"
-                },
-                { 
-                    text: "先に一定額を貯蓄や投資に回し、残りの範囲内で生活する", 
-                    isCorrect: true,
-                    judgment: "正解",
-                    explanation: "収入から先に資産構築の資金を確保する「パーキンソンの法則」をハックした正しい家計管理です。"
-                }
+                { text: "身の丈に合った中古の軽自動車やコンパクトカーを現金一括で買う", score: 2, exp: "資産価値の目減りを最小限に抑え、余計な金利手数料を完全に排除した最善の選択です。" },
+                { text: "必要な時だけカーシェアやレンタカー、公共交通機関で済ませる", score: 1, exp: "維持費（駐車場、税金、保険）を徹底的に削る合理的な判断です。" },
+                { text: "新車のファミリーカーを、一般的なディーラーローン（残価設定型など）を組んで買う", score: 0, exp: "【大衆の行動】多くの人が選びがちですが、購入した瞬間に車の価値は下がり、金利分だけ確実に損をしています。" },
+                { text: "見栄を張るため、年収以上の高級外車をフルローン（長期分割）で購入する", score: -1, exp: "【愚行】他人の目を気にするあまり、高金利の負債を抱えて未来の自由を売り渡す最悪の破滅パターンです。" }
             ]
         },
         {
-            area: "【第2分野：金融や経済の仕組み】",
-            text: "まとまったお金が貯まりました。今後の資産形成をどうしますか？",
+            category: "【投資の勘違い（罠）】",
+            text: "将来が不安になり、副業やスキルアップのために「自己投資」をしようと考えました。どうしますか？",
             options: [
-                { 
-                    text: "減るのが怖いので、全額をタンスに隠すか銀行に放置する", 
-                    isCorrect: false,
-                    judgment: "致命的に愚か",
-                    explanation: "物価上昇（インフレ）によって現金の価値が目減りしていく現実に気づいていない、経済の仕組みを理解していない愚かな選択です。"
-                },
-                { 
-                    text: "世界の経済成長を理解し、優良な株式（インデックスファンド等）を買う", 
-                    isCorrect: true,
-                    judgment: "正解",
-                    explanation: "資本主義の仕組みを理解し、お金自身に働いて増えてもらう正しい資産運用の選択です。"
-                }
+                { text: "無料の公開教材や数千円の古典的専門書を読み、まずは自分で小さな実践を始める", score: 2, exp: "コストを最小化し、実戦を通じて学ぶ最も投資対効果（ROI）が高いアプローチです。" },
+                { text: "国の教育訓練給付金などが適用される、実績のある資格スクールに通う", score: 1, exp: "制度を活用してコストを抑えつつ、明確なスキル習得を狙う堅実な判断です。" },
+                { text: "「有名インフルエンサーのオンラインサロン」や「月額制のビジネス動画配信」に加入する", score: 0, exp: "【大衆の行動】インプットしただけで「学んだ気」になり、主催者の養分になっているだけの状態に陥りやすいパターンです。" },
+                { text: "「一発で月収50万確定」と謳う高額な副業コンサル（50万円）に、借金をして申し込む", score: -1, exp: "【愚行】無知に付け込む情報弱者ビジネスの格好のカモです。楽に稼げる魔法は存在しません。" }
             ]
         },
         {
-            area: "【第3分野：消費生活・金融トラブル防止】",
-            text: "友人に見栄を張るため、自分の年収以上の「高級車」が欲しくなりました。どうしますか？",
+            category: "【消費と固定費】",
+            text: "スマートフォンの契約や毎月の固定費を見直すタイミングが来ました。どうしますか？",
             options: [
-                { 
-                    text: "フルローン（借金）を組んででも、今すぐ高級車を買う", 
-                    isCorrect: false,
-                    judgment: "破滅的に愚か",
-                    explanation: "高金利の負債を抱え、見栄という無価値なもののために未来の自由を売り渡す最悪の選択です。金融トラブルや自己破産への第一歩となります。"
-                },
-                { 
-                    text: "見栄を捨て、身の丈に合った車を買うか公共交通機関を使う", 
-                    isCorrect: true,
-                    judgment: "正解",
-                    explanation: "他人の目を気にせず、自身の純資産を守り不要な負債を回避する合理的な消費行動です。"
-                }
+                { text: "即座に格安SIMの最安プランへ変更し、不要なサブスクはすべて解約する", score: 2, exp: "固定費の削減は、リスクゼロで確実に毎月のキャッシュフローを改善する最強の投資行動です。" },
+                { text: "クレジットカードの明細をすべて洗い出し、使っていないサービスを特定する", score: 1, exp: "支出を可視化し、無駄を発見するための正しい第一歩です。" },
+                { text: "「毎月数回しか使っていないジムの会費」や「過去に契約した動画配信サブスク」を放置している", score: 0, exp: "【大衆の行動】「いつか使うかも」という甘えから、毎月少額ずつ資産をドブに捨て続けている典型例です。" },
+                { text: "最新の最高級スマホを分割払いで買い、キャリアのデータ無制限プラン（不要なオプション付き）のまま使い続ける", score: -1, exp: "【愚行】必要以上のスペックに過剰な固定費を払い続ける、マネーリテラシー皆無の行動です。" }
             ]
         },
         {
-            area: "【第4分野：キャリア教育】",
-            text: "今後の収入を大きく増やしたいと考えました。何に時間とお金を使いますか？",
+            category: "【資産運用】",
+            text: "生活防衛資金とは別に、余剰資金が50万円ほど貯まりました。このお金をどうしますか？",
             options: [
-                { 
-                    text: "一発逆転を狙って、パチンコや宝くじに時間と全財産をつぎ込む", 
-                    isCorrect: false,
-                    judgment: "絶望的に愚か",
-                    explanation: "ギャンブルの仕組み（胴元が勝つ）を理解しておらず、自身の「稼ぐ力」を高める努力を放棄した搾取され続ける側の選択です。"
-                },
-                { 
-                    text: "新しいスキルや知識を得るための勉強（自己投資）に時間とお金を使う", 
-                    isCorrect: true,
-                    judgment: "正解",
-                    explanation: "働く意義を理解し、最も投資リターンの高い自分自身のキャリアップ（人的資本）に資金を投下する正しい選択です。"
-                }
+                { text: "税制優遇口座（新NISAなど）を開設し、全世界株のインデックスファンドに分散投資する", score: 2, exp: "資本主義の成長の果実を、最も手数料低く享受できる王道の長期資産形成です。" },
+                { text: "ネット銀行の預金口座など、少しでも金利が高く安全な場所に一時避難させる", score: 1, exp: "リスクをコントロールしつつ、現金の価値を守るための堅実な行動です。" },
+                { text: "どこに預けていいか分からないので、大手都市銀行の普通預金（金利0.001%等）にそのまま放置する", score: 0, exp: "【大衆の行動】一見安全に見えますが、物価上昇（インフレ）によって現金の価値が実質的に目減りしていく罠に気づいていません。" },
+                { text: "銀行の窓口や証券会社の対面営業で「今おすすめ」と言われた投資信託や外貨建て保険を買う", score: -1, exp: "【愚行】営業マンの高い人件費（手数料）をあなたが肩代わりさせられているだけです。カモリストに載ります。" }
+            ]
+        },
+        {
+            category: "【消費と住居】",
+            text: "今後の住まい（家）の確保について、どのように計画を立てますか？",
+            options: [
+                { text: "自分の収入とライフプランに見合った賃貸に住み、余剰資金を運用に回す", score: 2, exp: "ライフステージの変化に柔軟に対応でき、不動産という単一資産にレバレッジ（借金）をかけない合理的な戦略です。" },
+                { text: "住宅補助などの福利厚生を極限まで使い倒す、または資産価値の下がりにくい中古物件を徹底調査して買う", score: 1, exp: "コストを抑える、あるいは不動産の「資産価値」というシビアな現実に着目したスマートなアプローチです。" },
+                { text: "「家賃を払い続けるのはもったいない」という理由で、35年の変動金利フルローンで新築の建売住宅を買う", score: 0, exp: "【大衆の行動】購入直後に建物の価値は数割下落します。低金利という罠に誘導され、数千万円の負債を「総資産」と勘違いしがちなパターンです。" },
+                { text: "銀行が「あなたの年収ならここまで融資可能」と提示した限界額まで借りて、新築の高級タワーマンションを買う", score: -1, exp: "【愚行】金利上昇リスクや修繕積立金の高騰を考慮せず、他人の基準で人生最大の負債を背負い込む破滅的行動です。" }
             ]
         }
     ];
 
-    let currentQuestionIndex = 0;
-    const userResults = [];
+    let questions = [...defaultQuestions];
+    let currentIdx = 0;
+    let scoreLog = [];
 
-    const qArea = document.getElementById('q-area');
-    const qText = document.getElementById('q-text');
-    const qOptions = document.getElementById('q-options');
-    const quizScreen = document.getElementById('quiz-screen');
-    const resultScreen = document.getElementById('result-screen');
-    const resultList = document.getElementById('result-list');
-
-    function loadQuestion() {
-        qOptions.innerHTML = '';
-        const currentQ = questions[currentQuestionIndex];
-        qArea.textContent = currentQ.area;
-        qText.textContent = currentQ.text;
-
-        currentQ.options.forEach(option => {
-            const button = document.createElement('button');
-            button.textContent = option.text;
-            button.onclick = () => selectOption(currentQ.area, option);
-            qOptions.appendChild(button);
-        });
+    // UI制御
+    function switchTab(tab) {
+        document.getElementById('tab-play').classList.toggle('active', tab === 'play');
+        document.getElementById('tab-create').classList.toggle('active', tab === 'create');
+        document.getElementById('screen-play').classList.toggle('hidden', tab !== 'play');
+        document.getElementById('screen-create').classList.toggle('hidden', tab !== 'create');
     }
 
-    function selectOption(area, option) {
-        userResults.push({
-            area: area,
-            text: option.text,
-            isCorrect: option.isCorrect,
-            judgment: option.judgment,
-            explanation: option.explanation
-        });
-        
-        currentQuestionIndex++;
-
-        if (currentQuestionIndex < questions.length) {
-            loadQuestion();
+    // クイズ読み込み
+    function loadQuiz() {
+        if (currentIdx < questions.length) {
+            const q = questions[currentIdx];
+            document.getElementById('q-category').textContent = `問題 ${currentIdx + 1} / ${questions.length} ${q.category}`;
+            document.getElementById('q-text').textContent = q.text;
+            
+            const optArea = document.getElementById('q-options');
+            optArea.innerHTML = '';
+            
+            // 選択肢の表示（プロトタイプ用にスコアに関わらずそのまま出力）
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.textContent = opt.text;
+                btn.onclick = () => handleSelect(opt);
+                optArea.appendChild(btn);
+            });
         } else {
-            showResult();
+            showResults();
         }
     }
 
-    function showResult() {
-        quizScreen.classList.add('hidden');
-        resultScreen.classList.remove('hidden');
+    function handleSelect(opt) {
+        scoreLog.push({
+            qText: questions[currentIdx].text,
+            category: questions[currentIdx].category,
+            selectedText: opt.text,
+            score: opt.score,
+            exp: opt.exp
+        });
+        currentIdx++;
+        loadQuiz();
+    }
 
-        userResults.forEach(result => {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'result-item ' + (result.isCorrect ? 'correct' : 'foolish');
+    // 擬似ランキング算出ロジック（満点が1位、スコアに応じてリアルタイム配置）
+    function getRank(totalScore, maxPossible) {
+        const totalUsers = 245108; // 擬似母集団
+        if (totalScore === maxPossible) {
+            return { rank: 1, text: `1位 / ${totalUsers}人中 (神リテラシー・搾取される要素ゼロ)` };
+        }
+        
+        // スコアに応じた位置計算
+        let percent = 0;
+        if (totalScore >= maxPossible * 0.8) { percent = 0.02; } // 上位2%
+        else if (totalScore >= maxPossible * 0.5) { percent = 0.15; } // 上位15%
+        else if (totalScore >= 0) { percent = 0.55; } // 平均層
+        else { percent = 0.88; } // カモ層
+        
+        // 微小なランダム変動を加えてリアル感を演出
+        const exactRank = Math.floor(totalUsers * percent + (Math.random() * 500));
+        return { rank: exactRank, text: `${exactRank.toLocaleString()}位 / ${totalUsers.toLocaleString()}人中` };
+    }
+
+    function showResults() {
+        document.getElementById('quiz-area').classList.add('hidden');
+        document.getElementById('result-area').classList.remove('hidden');
+        
+        const totalScore = scoreLog.reduce((sum, item) => sum + item.score, 0);
+        const maxPossible = questions.length * 2;
+        
+        const rankInfo = getRank(totalScore, maxPossible);
+        document.getElementById('rank-display').textContent = rankInfo.text;
+        document.getElementById('score-display').textContent = `獲得スコア: ${totalScore}点 (満点: ${maxPossible}点 / 最低: -${questions.length}点)`;
+        
+        const resList = document.getElementById('result-list');
+        resList.innerHTML = '';
+        
+        scoreLog.forEach(item => {
+            const div = document.createElement('div');
+            const sign = item.score >= 0 ? `+${item.score}` : `${item.score}`;
+            div.className = `result-item res-${sign}`;
             
-            itemDiv.innerHTML = `
-                <div style="font-size: 0.9em; color: #666;">${result.area}</div>
-                <div style="font-weight: bold; margin: 5px 0;">選択: 「${result.text}」</div>
-                <div class="judgment">判定: ${result.judgment}</div>
-                <div>${result.explanation}</div>
+            div.innerHTML = `
+                <div style="font-size:0.8em; color:var(--gray);">${item.category}</div>
+                <div style="font-weight:bold; margin:5px 0;">Q. ${item.qText}</div>
+                <div style="font-size:0.95em; margin-bottom:5px;">あなたの選択: <span style="font-weight:bold;">「${item.selectedText}」</span></div>
+                <span class="badge bg-${sign}">判定: ${sign}点</span>
+                <div style="font-size:0.9em; background:#fff; padding:10px; border-radius:4px; border:1px solid #eee; margin-top:5px;">${item.exp}</div>
             `;
-            resultList.appendChild(itemDiv);
+            resList.appendChild(div);
         });
     }
 
-    loadQuestion();
+    function restartQuiz() {
+        currentIdx = 0;
+        scoreLog = [];
+        document.getElementById('quiz-area').classList.remove('hidden');
+        document.getElementById('result-area').classList.add('hidden');
+        loadQuiz();
+    }
+
+    // ユーザーによる問題作成機能
+    function addCustomQuestion() {
+        const category = document.getElementById('form-category').value;
+        const text = document.getElementById('form-text').value;
+        
+        const opt2 = document.getElementById('form-opt2').value;
+        const exp2 = document.getElementById('form-exp2').value;
+        
+        const opt1 = document.getElementById('form-opt1').value;
+        const exp1 = document.getElementById('form-exp1').value;
+        
+        const opt0 = document.getElementById('form-opt0').value;
+        const exp0 = document.getElementById('form-exp0').value;
+        
+        const optminus = document.getElementById('form-optminus').value;
+        const expminus = document.getElementById('form-expminus').value;
+
+        if (!text || !opt2 || !opt1 || !opt0 || !optminus) {
+            alert('すべての選択肢を入力してください。');
+            return;
+        }
+
+        const newQuestion = {
+            category: category,
+            text: text,
+            options: [
+                { text: opt2, score: 2, exp: exp2 || "最善の選択です。高いリテラシーを持っています。" },
+                { text: opt1, score: 1, exp: exp1 || "良い選択です。リスクを抑えられています。" },
+                { text: opt0, score: 0, exp: opt0.includes('【大衆の行動】') ? opt0 : `【大衆の行動】 ${exp0 || "人々がよく選ぶ無難な選択ですが、現状維持に過ぎません。"}` },
+                { text: optminus, score: -1, exp: `【愚行】 ${expminus || "長期的に経済的損失を被る可能性が極めて高い選択です。"}` }
+            ]
+        };
+
+        questions.push(newQuestion);
+        alert('新しい問題をシステムに組み込みました！「クイズに挑戦」の最後の問題として出題されます。');
+        
+        // フォームリセット
+        document.getElementById('form-text').value = '';
+        document.getElementById('form-opt2').value = '';
+        document.getElementById('form-exp2').value = '';
+        document.getElementById('form-opt1').value = '';
+        document.getElementById('form-exp1').value = '';
+        document.getElementById('form-opt0').value = '';
+        document.getElementById('form-exp0').value = '';
+        document.getElementById('form-optminus').value = '';
+        document.getElementById('form-expminus').value = '';
+        
+        switchTab('play');
+        restartQuiz();
+    }
+
+    // 初期起動
+    loadQuiz();
 </script>
 </body>
 </html>
