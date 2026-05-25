@@ -54,10 +54,14 @@
     .rating-btn.good:hover { background: #e8f5e9; border-color: var(--success); color: var(--success); }
     .rating-btn.bad:hover { background: #ffebee; border-color: var(--danger); color: var(--danger); }
     
-    /* フォーム */
+    /* フォーム (共通) */
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
     .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    
+    /* ユーザーデータ入力モーダル風UI */
+    #screen-userdata-form { background: #fffdf5; border: 2px solid var(--primary); padding: 30px; border-radius: 8px; text-align: center; }
+    #screen-userdata-form h2 { color: var(--primary); margin-top: 0; border: none; padding: 0; }
     
     /* プレミアム & AI相談UI */
     .premium-lock { text-align: center; padding: 30px 20px; background: #fffdf5; border: 1px dashed var(--gold); border-radius: 8px; margin-top: 20px;}
@@ -102,6 +106,22 @@
             <div class="question" id="q-text"></div>
             <div class="options" id="q-options"></div>
         </div>
+    </div>
+
+    <div id="screen-userdata-form" class="hidden">
+        <h2>判定処理が完了しました</h2>
+        <p style="font-size: 0.95em; color: var(--gray);">より正確な「全国順位」と「生涯損失額（逸失利益）」を算出するため、以下の基本情報を入力して結果を表示してください。</p>
+        
+        <div class="form-group" style="text-align: left; max-width: 300px; margin: 20px auto;">
+            <label>現在の年齢 (歳)</label>
+            <input type="number" id="input-age" placeholder="例: 35" min="18" max="100">
+        </div>
+        <div class="form-group" style="text-align: left; max-width: 300px; margin: 20px auto;">
+            <label>現在の概算年収 (万円)</label>
+            <input type="number" id="input-income" placeholder="例: 500" min="0">
+        </div>
+        
+        <button class="submit-btn" onclick="submitUserData()" style="max-width: 300px;">結果を表示する</button>
     </div>
 
     <div id="screen-ugc-result" class="hidden">
@@ -162,11 +182,8 @@
             <div class="premium-lock" style="margin-bottom: 30px; text-align: left;">
                 <h3 style="color:var(--gold); margin-top:0; text-align:center;">🤖 AIライフプランナー (Oracle)</h3>
                 <div class="chat-window">
-                    <div class="ai-message">
-                        【現状分析】解答履歴を分析しました。あなたのパラメータは<span class="text-danger">「時間リテラシー」に致命的な弱点（マイナス値）</span>が存在します。<br><br>
-                        【生涯損失試算】目先のタイパ追求や受動的な情報収集を継続した場合、寿命の切り売りと機会損失により、生涯で<span class="text-danger" style="font-size: 1.15em;">約4,500万円の逸失利益</span>が発生します。<br>
-                        <span class="text-black-bold">【即時実行タスク】直ちに目的のないショート動画の視聴を停止し、一次情報へのアクセスと実証実験にのみ可処分時間を投資してください。</span>
-                    </div>
+                    <div class="ai-message" id="oracle-message">
+                        </div>
                 </div>
                 <div style="text-align: center;">
                     <button class="submit-btn" style="background:var(--gold); width:auto; padding:10px 30px; margin-top:15px;">プレミアムプランで詳細なロードマップを生成</button>
@@ -294,6 +311,7 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
         document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('screen-userdata-form').classList.add('hidden');
         document.getElementById(`tab-${tab}`).classList.add('active');
         document.getElementById(`screen-${tab}`).classList.remove('hidden');
     }
@@ -370,8 +388,47 @@
 
     function finishQuiz() {
         document.getElementById('quiz-screen').classList.add('hidden');
+        // 結果表示前にユーザーデータ入力フォームを表示
+        document.getElementById('screen-userdata-form').classList.remove('hidden');
+    }
+
+    // ★追加: 損失計算ロジック
+    function calculateLifetimeLoss(age, annualIncome, scores) {
+        let totalLoss = 0;
+        const incomeYen = annualIncome * 10000; 
+        const workingYearsLeft = Math.max(0, 65 - age);
+        const lifeYearsLeft = Math.max(0, 90 - age);
+        const hourlyWage = incomeYen / 2000;
+
+        if (scores["時間"] <= 0) totalLoss += hourlyWage * 2 * 365 * workingYearsLeft;
+        if (scores["健康"] <= 0) totalLoss += 5000000 + (incomeYen * 2);
+        if (scores["投資"] <= 0) {
+            const yearlyInvestment = incomeYen * 0.1;
+            let investedAmount = 0; let savedAmount = 0;
+            for (let i = 0; i < lifeYearsLeft; i++) {
+                investedAmount = (investedAmount + yearlyInvestment) * 1.05;
+                savedAmount += yearlyInvestment;
+            }
+            totalLoss += (investedAmount - savedAmount);
+        }
+        if (scores["消費"] <= 0) totalLoss += 30000 * 12 * lifeYearsLeft;
+        
+        return Math.floor(totalLoss);
+    }
+
+    // ★追加: 入力データ送信処理
+    function submitUserData() {
+        const ageInput = document.getElementById('input-age').value;
+        const incomeInput = document.getElementById('input-income').value;
+        
+        // 入力がない場合のデフォルト値設定（離脱防止策のフェイルセーフ）
+        const age = ageInput ? parseInt(ageInput) : 35;
+        const annualIncome = incomeInput ? parseInt(incomeInput) : 400;
+
+        document.getElementById('screen-userdata-form').classList.add('hidden');
+
         if (currentMode === 'official') {
-            updateStatusScreen();
+            updateStatusScreen(age, annualIncome);
             switchTab('status');
         } else {
             updateUGCResultScreen();
@@ -410,21 +467,30 @@
         alert(type === 'good' ? "「良問」として評価しました。" : "「悪問」として報告しました。一定数の報告で自動非表示になります。");
     }
 
-    function updateStatusScreen() {
+    // ★更新: ステータス画面とAIメッセージの動的生成
+    function updateStatusScreen(age, annualIncome) {
         document.getElementById('status-uncompleted').classList.add('hidden');
         document.getElementById('status-completed').classList.remove('hidden');
 
         let totalScore = 0; let totalMax = 0;
+        let worstCategory = "時間";
+        let minScore = 999;
         const radar = document.getElementById('radar-charts');
         radar.innerHTML = '';
 
         for (const [cat, score] of Object.entries(categoryScores)) {
             const max = categoryMax[cat];
             totalScore += score; totalMax += max;
-            const min = -(max / 2); 
-            const range = max - min;
-            let percent = ((score - min) / range) * 100;
+            const minVal = -(max / 2); 
+            const range = max - minVal;
+            let percent = ((score - minVal) / range) * 100;
             if(percent < 0) percent = 0;
+            
+            // 最も低いスコアのカテゴリを特定
+            if (score < minScore) {
+                minScore = score;
+                worstCategory = cat;
+            }
 
             radar.innerHTML += `
                 <div class="param-box">
@@ -437,6 +503,28 @@
         document.getElementById('score-display').textContent = `総合スコア: ${totalScore} / ${totalMax}点`;
         const exactRank = totalScore === totalMax ? 1 : Math.floor(312049 * (totalScore >= totalMax * 0.5 ? 0.2 : 0.7) + (Math.random() * 1000));
         document.getElementById('rank-display').textContent = `${exactRank.toLocaleString()}位 / 312,049人中`;
+
+        // 動的損失額の計算とカンマ区切りフォーマット
+        const lossAmount = calculateLifetimeLoss(age, annualIncome, categoryScores);
+        const lossString = (lossAmount / 10000).toLocaleString() + '万';
+        
+        // AIメッセージの動的生成
+        let adviceText = "";
+        if (worstCategory === "時間") adviceText = "直ちに目的のないショート動画の視聴を停止し、一次情報へのアクセスと実証実験にのみ可処分時間を投資してください。";
+        if (worstCategory === "消費") adviceText = "直ちにすべてのサブスクリプションを解約し、見栄のための支出をゼロに設定してください。";
+        if (worstCategory === "投資") adviceText = "直ちにネット証券を開設し、手数料0.2%以下の全世界株インデックスファンドへの自動積立を設定してください。";
+        if (worstCategory === "健康") adviceText = "直ちに睡眠時間を7時間確保するよう生活を再設計し、定期的な歯科検診を予約してください。";
+
+        const oracleBox = document.getElementById('oracle-message');
+        if (totalScore === totalMax) {
+            oracleBox.innerHTML = `【現状分析】全パラメータが極めて優秀です。大衆の罠に陥るリスクはありません。<br><br>【即時実行タスク】現在の行動を継続し、余剰資金はすべて事業かインデックス投資に回してください。`;
+        } else {
+            oracleBox.innerHTML = `
+                【現状分析】解答履歴を分析しました。あなたのパラメータは<span class="text-danger">「${worstCategory}リテラシー」に致命的な弱点</span>が存在します。<br><br>
+                【生涯損失試算】現在の年齢（${age}歳）と年収（${annualIncome}万円）をベースに試算した結果、このままの行動を継続した場合、寿命の切り売りと機会損失により、生涯で<span class="text-danger" style="font-size: 1.15em;">約${lossString}円の逸失利益</span>が発生します。<br>
+                <span class="text-black-bold">【即時実行タスク】${adviceText}</span>
+            `;
+        }
 
         const resList = document.getElementById('result-list');
         resList.innerHTML = '';
