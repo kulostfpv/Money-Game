@@ -5,46 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>次世代マネーリテラシー判定プラットフォーム</title>
 <style>
-    :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --gray: #6c757d; }
-    body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; line-height: 1.5; }
-    .container { max-width: 700px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --gray: #6c757d; --info: #17a2b8; }
+    body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     
-    /* タブ切り替え */
-    .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; }
-    .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: bold; color: var(--gray); }
-    .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+    h1 { text-align: center; font-size: 1.6em; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .q-area { font-size: 0.95em; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
+    .question { font-size: 1.25em; font-weight: bold; margin-bottom: 25px; }
     
-    h1 { text-align: center; font-size: 1.6em; margin-bottom: 20px; }
-    .q-area { font-size: 0.9em; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
-    .question { font-size: 1.2em; font-weight: bold; margin-bottom: 20px; }
-    
-    /* 4択ボタン */
-    .options button { display: block; width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #eee; border-radius: 8px; background: #fafafa; cursor: pointer; text-align: left; font-size: 0.95em; transition: 0.2s; }
+    .options button { display: block; width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #eee; border-radius: 8px; background: #fafafa; cursor: pointer; text-align: left; font-size: 1em; transition: 0.2s; }
     .options button:hover { background: #f0f4f8; border-color: var(--primary); }
     
-    /* 結果表示 */
-    .rank-box { text-align: center; background: #eef2f7; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .rank-box { text-align: center; background: #eef2f7; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
     .rank-title { font-size: 1.1em; font-weight: bold; }
     .rank-number { font-size: 2.2em; font-weight: bold; color: var(--danger); margin: 10px 0; }
-    .score-detail { font-size: 1.1em; font-weight: bold; color: var(--primary); }
     
-    .result-item { margin-bottom: 20px; padding: 15px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9; }
+    .result-item { margin-bottom: 25px; padding: 20px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9; }
     .res-+2 { border-left-color: var(--success); }
     .res-+1 { border-left-color: #71dd37; }
     .res-0 { border-left-color: var(--warning); }
     .res--1 { border-left-color: var(--danger); }
     
-    .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; color: #fff; margin-bottom: 5px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: bold; color: #fff; margin-bottom: 10px; }
     .bg-+2 { background: var(--success); }
     .bg-+1 { background: #71dd37; }
     .bg-0 { background: var(--warning); color: #333; }
     .bg--1 { background: var(--danger); }
 
-    /* フォーム */
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    .submit-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; }
+    .exp-box { font-size: 0.95em; background: #fff; padding: 12px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px; }
+    .advice-box { font-size: 0.95em; background: #e8f4f8; padding: 12px; border-radius: 4px; border: 1px solid #b8daff; margin-top: 10px; color: #004085; font-weight: bold; }
+    
+    .submit-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
     
     .hidden { display: none; }
 </style>
@@ -52,12 +43,8 @@
 <body>
 
 <div class="container">
-    <div class="tabs">
-        <div class="tab active" id="tab-play" onclick="switchTab('play')">クイズに挑戦</div>
-        <div class="tab" id="tab-create" onclick="switchTab('create')">問題を作成する</div>
-    </div>
-
     <div id="screen-play">
+        <h1>マネーリテラシー残酷判定</h1>
         <div id="quiz-area">
             <div class="q-area" id="q-category"></div>
             <div class="question" id="q-text"></div>
@@ -65,126 +52,128 @@
         </div>
         
         <div id="result-area" class="hidden">
-            <h1>判定結果</h1>
+            <h1>判定結果と改善提案</h1>
             <div class="rank-box">
                 <div class="rank-title">あなたの全国暫定順位</div>
                 <div class="rank-number" id="rank-display">計算中...</div>
-                <div class="score-detail" id="score-display"></div>
+                <div id="score-display" style="font-weight:bold; color:var(--primary);"></div>
             </div>
-            <h2>各行動の通信簿</h2>
             <div id="result-list"></div>
-            <button class="submit-btn" onclick="restartQuiz()" style="background:#333; margin-top:15px;">もう一度挑戦する</button>
+            <button class="submit-btn" onclick="location.reload()" style="background:#333;">最初からやり直す</button>
         </div>
-    </div>
-
-    <div id="screen-create" class="hidden">
-        <h1>オリジナル問題の投稿</h1>
-        <p style="font-size:0.85em; color:var(--gray);">※投稿した問題は即座に「クイズに挑戦」の末尾に追加されます。</p>
-        <div class="form-group">
-            <label>ジャンル</label>
-            <select id="form-category">
-                <option value="【消費（最重要）】">消費</option>
-                <option value="【投資の勘違い（罠）】">投資の勘違い</option>
-                <option value="【家計管理】">家計管理</option>
-                <option value="【資産運用】">資産運用</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>問題文（どのような局面に直面したか）</label>
-            <textarea id="form-text" rows="2" placeholder="例：臨時のボーナス5万円が入りました。どうしますか？"></textarea>
-        </div>
-        <div class="form-group" style="border-left: 4px solid var(--success); padding-left: 10px;">
-            <label>選択肢 A (最善の行動: +2点)</label>
-            <input type="text" id="form-opt2" placeholder="例：全額をインデックス投資の原資として証券口座へ回す">
-            <input type="text" id="form-exp2" placeholder="解説：将来の資産形成に直結する合理的な判断です。" style="margin-top:5px; font-size:0.9em;">
-        </div>
-        <div class="form-group" style="border-left: 4px solid #71dd37; padding-left: 10px;">
-            <label>選択肢 B (良い行動: +1点)</label>
-            <input type="text" id="form-opt1" placeholder="例：普段買えない専門書を数冊買い、残りは貯金する">
-            <input type="text" id="form-exp1" placeholder="解説：自己投資と貯蓄のバランスが取れています。" style="margin-top:5px; font-size:0.9em;">
-        </div>
-        <div class="form-group" style="border-left: 4px solid var(--warning); padding-left: 10px;">
-            <label>選択肢 C (普通の行動: 0点) ※大衆がよくやるパターン</label>
-            <input type="text" id="form-opt0" placeholder="例：少し贅沢をして、美味しいご飯を食べて使い切る">
-            <input type="text" id="form-exp0" placeholder="解説：プラスにもマイナスにもなりませんが、資産は増えません。" style="margin-top:5px; font-size:0.9em;">
-        </div>
-        <div class="form-group" style="border-left: 4px solid var(--danger); padding-left: 10px;">
-            <label>選択肢 D (最悪の行動: -1点)</label>
-            <input type="text" id="form-optminus" placeholder="例：これを元手に競馬やパチンコで増やそうとする">
-            <input type="text" id="form-expminus" placeholder="解説：ギャンブルの胴元を太らせるだけの最も愚かな行為です。" style="margin-top:5px; font-size:0.9em;">
-        </div>
-        <button class="submit-btn" onclick="addCustomQuestion()">この問題をシステムに組み込む</button>
     </div>
 </div>
 
 <script>
-    // 初期クイズデータ（5問、消費・勘違い投資に重点）
-    const defaultQuestions = [
+    const questions = [
+        // --- 健康面（人生90年設計）5問 ---
         {
-            category: "【消費（最重要）】",
-            text: "移動手段として自動車が必要になりました。あなたの行動は？",
+            category: "【健康と収入】",
+            text: "今月の生活費が少し足りません。どうやって稼ぎますか？",
             options: [
-                { text: "身の丈に合った中古の軽自動車やコンパクトカーを現金一括で買う", score: 2, exp: "資産価値の目減りを最小限に抑え、余計な金利手数料を完全に排除した最善の選択です。" },
-                { text: "必要な時だけカーシェアやレンタカー、公共交通機関で済ませる", score: 1, exp: "維持費（駐車場、税金、保険）を徹底的に削る合理的な判断です。" },
-                { text: "新車のファミリーカーを、一般的なディーラーローン（残価設定型など）を組んで買う", score: 0, exp: "【大衆の行動】多くの人が選びがちですが、購入した瞬間に車の価値は下がり、金利分だけ確実に損をしています。" },
-                { text: "見栄を張るため、年収以上の高級外車をフルローン（長期分割）で購入する", score: -1, exp: "【愚行】他人の目を気にするあまり、高金利の負債を抱えて未来の自由を売り渡す最悪の破滅パターンです。" }
+                { text: "睡眠時間を削って深夜のアルバイトや無駄な残業を入れる", score: -1, exp: "【愚行】睡眠負債による自律神経の乱れで将来の医療費を爆増させ、人生90年における健康寿命を削って小銭を得る最悪の選択です。", advice: "最低7時間の睡眠は死守してください。目先のお金ではなく、固定費の削減や、日中の生産性を上げて単価を交渉する方向にシフトすべきです。" },
+                { text: "カップ麺や菓子パンなど極限まで食費を削って浮いたお金を充てる", score: 0, exp: "【大衆の行動】栄養失調による免疫力低下を招き、数年後に生活習慣病で稼いだ額以上の治療費を払うことになります。", advice: "食費を削るのではなく「スマホの通信費」や「不要なサブスク」など、健康に影響を与えない固定費から削減を行ってください。" },
+                { text: "不用品をフリマアプリで売却し、一時的な現金を確保する", score: 1, exp: "健康を害さず、かつ身の回りの整理（断捨離）にもなるため、一時的な資金繰りとしては適切な行動です。", advice: "" },
+                { text: "固定費を徹底的に見直し、生活水準を根本から下げて労働の質（睡眠・食事）を維持する", score: 2, exp: "人生90年を走り抜ける最大の資本である「肉体と精神」を守りつつ、キャッシュフローを根本改善する最善の選択です。", advice: "" }
             ]
         },
         {
-            category: "【投資の勘違い（罠）】",
-            text: "将来が不安になり、副業やスキルアップのために「自己投資」をしようと考えました。どうしますか？",
+            category: "【健康と予防医療】",
+            text: "歯医者にはどのタイミングで行きますか？",
             options: [
-                { text: "無料の公開教材や数千円の古典的専門書を読み、まずは自分で小さな実践を始める", score: 2, exp: "コストを最小化し、実戦を通じて学ぶ最も投資対効果（ROI）が高いアプローチです。" },
-                { text: "国の教育訓練給付金などが適用される、実績のある資格スクールに通う", score: 1, exp: "制度を活用してコストを抑えつつ、明確なスキル習得を狙う堅実な判断です。" },
-                { text: "「有名インフルエンサーのオンラインサロン」や「月額制のビジネス動画配信」に加入する", score: 0, exp: "【大衆の行動】インプットしただけで「学んだ気」になり、主催者の養分になっているだけの状態に陥りやすいパターンです。" },
-                { text: "「一発で月収50万確定」と謳う高額な副業コンサル（50万円）に、借金をして申し込む", score: -1, exp: "【愚行】無知に付け込む情報弱者ビジネスの格好のカモです。楽に稼げる魔法は存在しません。" }
+                { text: "痛みが我慢できなくなってから、初めて駆け込む", score: -1, exp: "【愚行】神経を抜き、将来インプラント等で数百万円の損失と咀嚼機能（脳への刺激）を失う、予防意識ゼロの行動です。", advice: "痛みがなくても、今すぐ3ヶ月に1回の定期健診（クリーニング）を予約してください。これが最も利回りの高い自己投資です。" },
+                { text: "冷たいものが少し染みるなど、違和感を感じた時点で行く", score: 0, exp: "【大衆の行動】初期治療で済みますが、トラブルが起きてから対処する「後手」の対応であり、依然として削るリスクがあります。", advice: "「トラブルが起きてから」ではなく「トラブルを起こさないため」の定期メンテナンスをスケジュールに組み込むべきです。" },
+                { text: "半年に1回、義務的に検診に行く", score: 1, exp: "最低限の予防医療を実践できており、将来の医療費リスクを大幅に軽減できています。", advice: "" },
+                { text: "自費の予防歯科も含め、3ヶ月に1回定期的なクリーニングと検診を欠かさない", score: 2, exp: "歯1本の価値（約100万円）を理解し、生涯の医療費を最小化する最も投資対効果の高い行動です。", advice: "" }
             ]
         },
         {
-            category: "【消費と固定費】",
-            text: "スマートフォンの契約や毎月の固定費を見直すタイミングが来ました。どうしますか？",
+            category: "【健康と労働環境】",
+            text: "転職のオファーが来ました。どちらを選びますか？",
             options: [
-                { text: "即座に格安SIMの最安プランへ変更し、不要なサブスクはすべて解約する", score: 2, exp: "固定費の削減は、リスクゼロで確実に毎月のキャッシュフローを改善する最強の投資行動です。" },
-                { text: "クレジットカードの明細をすべて洗い出し、使っていないサービスを特定する", score: 1, exp: "支出を可視化し、無駄を発見するための正しい第一歩です。" },
-                { text: "「毎月数回しか使っていないジムの会費」や「過去に契約した動画配信サブスク」を放置している", score: 0, exp: "【大衆の行動】「いつか使うかも」という甘えから、毎月少額ずつ資産をドブに捨て続けている典型例です。" },
-                { text: "最新の最高級スマホを分割払いで買い、キャリアのデータ無制限プラン（不要なオプション付き）のまま使い続ける", score: -1, exp: "【愚行】必要以上のスペックに過剰な固定費を払い続ける、マネーリテラシー皆無の行動です。" }
+                { text: "超高給（年収2倍）だが、毎日終電でパワハラが横行するブラック企業", score: -1, exp: "【愚行】うつ病などの精神疾患を患い、その後数年間〜数十年の労働能力（数千万円の逸失利益）を失う破滅への道です。", advice: "「心身の健康」は一度壊れると元の状態に戻るのに膨大な時間とコストがかかります。絶対に引き受けてはいけません。" },
+                { text: "給料は1.5倍になるが、休日は接待や付き合いでほぼ潰れる企業", score: 0, exp: "【大衆の行動】収入は増えますが、運動やリフレッシュの時間がゼロになり、40代以降で体を壊す典型的なパターンです。", advice: "収入が増えても、それを楽しむ時間と健康がなければ意味がありません。運動や休息の時間を確保できる働き方を交渉すべきです。" },
+                { text: "現状維持の給料だが、フルリモートで時間の自由が利く企業", score: 1, exp: "ストレスを減らし、空いた時間で副業や自己投資に時間を回せるため、長期的な期待値は高いです。", advice: "" },
+                { text: "給料は下がるが、定時退社で毎日運動と自炊ができ、副業も許可されている企業", score: 2, exp: "「健康維持」と「個人で稼ぐ力」の両立を視野に入れた、人生90年時代における最強のディフェンス戦略です。", advice: "" }
             ]
         },
         {
-            category: "【資産運用】",
-            text: "生活防衛資金とは別に、余剰資金が50万円ほど貯まりました。このお金をどうしますか？",
+            category: "【健康と生活習慣】",
+            text: "仕事が忙しい時期の運動習慣はどうしていますか？",
             options: [
-                { text: "税制優遇口座（新NISAなど）を開設し、全世界株のインデックスファンドに分散投資する", score: 2, exp: "資本主義の成長の果実を、最も手数料低く享受できる王道の長期資産形成です。" },
-                { text: "ネット銀行の預金口座など、少しでも金利が高く安全な場所に一時避難させる", score: 1, exp: "リスクをコントロールしつつ、現金の価値を守るための堅実な行動です。" },
-                { text: "どこに預けていいか分からないので、大手都市銀行の普通預金（金利0.001%等）にそのまま放置する", score: 0, exp: "【大衆の行動】一見安全に見えますが、物価上昇（インフレ）によって現金の価値が実質的に目減りしていく罠に気づいていません。" },
-                { text: "銀行の窓口や証券会社の対面営業で「今おすすめ」と言われた投資信託や外貨建て保険を買う", score: -1, exp: "【愚行】営業マンの高い人件費（手数料）をあなたが肩代わりさせられているだけです。カモリストに載ります。" }
+                { text: "エナジードリンクを飲んで徹夜し、運動どころか座りっぱなしで作業する", score: -1, exp: "【愚行】血流悪化とカフェイン依存により心疾患リスクを急上昇させ、寿命の前借りをしているだけの自殺行為です。", advice: "エナジードリンクへの依存を即刻やめ、まずは1日30分の散歩から血流を改善する習慣を取り入れてください。" },
+                { text: "休日にまとめてジムに行き、平日は一切運動しない", score: 0, exp: "【大衆の行動】平日の長時間の座り仕事による健康被害（喫煙と同等のリスク）を、週末の運動だけでは相殺できません。", advice: "週末の激しい運動よりも、平日の「こまめに立つ」「階段を使う」といった日常的な活動量（NEAT）を増やす工夫が必要です。" },
+                { text: "通勤時間を利用して一駅分歩くなど、日常に運動を組み込んでいる", score: 1, exp: "時間を有効活用しながら基礎的な活動量を確保できている良い習慣です。", advice: "" },
+                { text: "どんなに忙しくても、睡眠と1日30分の有酸素運動（または筋トレ）の時間は絶対に天引きして確保する", score: 2, exp: "脳のパフォーマンスを最大化し、長期的な生産性を落とさないトップ層の自己管理能力です。", advice: "" }
             ]
         },
         {
-            category: "【消費と住居】",
-            text: "今後の住まい（家）の確保について、どのように計画を立てますか？",
+            category: "【健康と嗜好品】",
+            text: "ストレスが溜まった時、どうやって解消しますか？",
             options: [
-                { text: "自分の収入とライフプランに見合った賃貸に住み、余剰資金を運用に回す", score: 2, exp: "ライフステージの変化に柔軟に対応でき、不動産という単一資産にレバレッジ（借金）をかけない合理的な戦略です。" },
-                { text: "住宅補助などの福利厚生を極限まで使い倒す、または資産価値の下がりにくい中古物件を徹底調査して買う", score: 1, exp: "コストを抑える、あるいは不動産の「資産価値」というシビアな現実に着目したスマートなアプローチです。" },
-                { text: "「家賃を払い続けるのはもったいない」という理由で、35年の変動金利フルローンで新築の建売住宅を買う", score: 0, exp: "【大衆の行動】購入直後に建物の価値は数割下落します。低金利という罠に誘導され、数千万円の負債を「総資産」と勘違いしがちなパターンです。" },
-                { text: "銀行が「あなたの年収ならここまで融資可能」と提示した限界額まで借りて、新築の高級タワーマンションを買う", score: -1, exp: "【愚行】金利上昇リスクや修繕積立金の高騰を考慮せず、他人の基準で人生最大の負債を背負い込む破滅的行動です。" }
+                { text: "酒、タバコ、ギャンブル、暴飲暴食で発散する", score: -1, exp: "【愚行】健康を破壊し、お金を失い、翌日のパフォーマンスまで落とす「負のトリプルコンボ」です。", advice: "ストレスの原因を根本から絶つか、運動や睡眠、サウナなど「後味が良く、翌日の活力になる」解消法に強制的に置き換えてください。" },
+                { text: "ネットフリックス等の動画を深夜までダラダラと見続ける", score: 0, exp: "【大衆の行動】お金はかかりませんが、睡眠不足を招き、根本的なストレス解消（脳疲労の回復）にはなっていません。", advice: "スクリーンタイムを制限し、寝る前はスマホを手放して良質な睡眠をとることが最大のストレス解消になります。" },
+                { text: "気心の知れた少数の友人と、適度な食事や会話を楽しむ", score: 1, exp: "社会的な繋がりによるオキシトシン分泌で、健康的にストレスを緩和できています。", advice: "" },
+                { text: "サウナ、瞑想、軽い運動など、身体を整えることで脳の疲労を物理的に抜く", score: 2, exp: "自律神経を意図的にコントロールし、翌日以降の生産性を高める自己投資としてのストレス解消法です。", advice: "" }
+            ]
+        },
+        
+        // --- 時間的コスト（タイパの罠）5問 ---
+        {
+            category: "【時間と学習】",
+            text: "新しいビジネススキルを習得したい時、どうしますか？",
+            options: [
+                { text: "YouTubeの10分要約動画を2倍速で見て、わかった気になる", score: -1, exp: "【愚行】表面的な情報をなぞっただけで脳に定着せず、いざ実務となると何もできない「タイパ病」の末路です。", advice: "要約はあくまで「目次」です。本当に必要なスキルなら、本腰を入れて一次情報や専門書を精読し、手を動かす時間を惜しまないでください。" },
+                { text: "SNSで流れてくる「これだけやればOK」という薄いTipsを収集する", score: 0, exp: "【大衆の行動】情報収集している自分に酔っているだけで、体系的な知識が身につかず、結局は他人の劣化コピーにしかなりません。", advice: "Tipsの収集をやめ、その分野の「古典」や「名著」と呼ばれる本を1冊、じっくりと時間をかけて読み込んで基礎を固めてください。" },
+                { text: "実績のある専門書を数冊買い、週末にまとめて時間を取って読む", score: 1, exp: "体系的な知識を得るための正しいアプローチであり、着実に実力はつきます。", advice: "" },
+                { text: "基礎概念の理解にあえて膨大な時間をかけ、自分の手で実際にプロトタイプを作りながら試行錯誤する", score: 2, exp: "急がば回れ。本質的な構造を深く理解することで、後からあらゆる応用が利く「真のタイムパフォーマンス」を実現する王道です。", advice: "" }
+            ]
+        },
+        {
+            category: "【時間と人脈】",
+            text: "仕事やビジネスでの「人脈作り」をどう考えますか？",
+            options: [
+                { text: "異業種交流会で100人と名刺交換し、全員に定型文の営業メールを一斉送信する", score: -1, exp: "【愚行】効率を履き違えたスパム行為であり、自身の信用を即座に失墜させる最も無駄な時間の使い方です。", advice: "薄い繋がりを100人作るより、あなたのスキルや人格を深く信頼してくれる1人を圧倒的に喜ばせることに全力を注いでください。" },
+                { text: "SNSでフォロワーが多い人に媚びを売り、引き上げてもらおうとする", score: 0, exp: "【大衆の行動】他人の褌で相撲を取ろうとする思考であり、自分自身に価値（ギブできるもの）がなければ長続きしません。", advice: "他人に時間を奪うのではなく、まずは自分自身が「誰かの役に立つ専門性」を時間をかけて磨き上げるべきです。" },
+                { text: "今目の前にいるクライアントや同僚の期待値を少しだけ超える仕事を継続する", score: 1, exp: "地味ですが、結果的にそれが最強のリファラル（紹介）を生む本質的な人脈構築です。", advice: "" },
+                { text: "すぐには利益にならないが、互いの哲学に共感できる少数の相手と、数年単位で深い対話を重ねる", score: 2, exp: "利害関係を超えた深い信頼関係こそが、有事の際に自分を救う最大の無形資産となります。", advice: "" }
+            ]
+        },
+        {
+            category: "【時間と業務改善】",
+            text: "職場で手作業のエラー（ミス）が頻発しています。どう対応しますか？",
+            options: [
+                { text: "「直す時間がない」と放置し、ミスが起きるたびに気合と根性で謝罪・修正する", score: -1, exp: "【愚行】目先の数時間をケチった結果、将来にわたって数百時間のロスと信用低下を垂れ流し続ける最悪の判断です。", advice: "業務を一度止めてでも、プログラミングやツールを使って「二度と同じミスが起きない仕組み（自動化）」を作ることに時間を投資してください。" },
+                { text: "ミスを減らすための「分厚いマニュアル」を作り、ダブルチェックを義務付ける", score: 0, exp: "【大衆の行動】人間の注意力に依存した解決策であり、チェックのための無駄な人件費（時間）が永続的に増えるだけです。", advice: "「人が気をつける」のではなく「システム的にエラーが出せない（または自動処理される）」構造へとプロセス自体を再設計すべきです。" },
+                { text: "エクセルのマクロや既存のSaaSツールを導入し、手作業の工程を半分に減らす", score: 1, exp: "テクノロジーを利用して時間を生み出す、論理的かつ正しい業務改善です。", advice: "" },
+                { text: "根本原因（プロセス自体）を分析し、AIやシステム連携を用いて「人間が介在しない完全自動化」を構築する", score: 2, exp: "最初の手間（時間的コスト）を惜しまず、永続的な不労所得（時間の創出）を生み出すシステムクリエイターの思考です。", advice: "" }
+            ]
+        },
+        {
+            category: "【時間と情報収集】",
+            text: "毎日の情報収集はどのように行っていますか？",
+            options: [
+                { text: "TikTokやショート動画を無限にスワイプして「有益そうな情報」を浴び続ける", score: -1, exp: "【愚行】アルゴリズムに可処分時間を搾取されているだけで、何も行動に移せないドーパミン中毒の状態です。", advice: "ショート動画アプリを削除するか時間制限をかけ、目的のない「受動的な情報収集」を今すぐやめてください。" },
+                { text: "ネットニュースの「見出し」だけを読み流して、世の中のトレンドを追う", score: 0, exp: "【大衆の行動】分かった気にはなりますが、一次情報にあたらないため、フェイクニュースや扇動に流される情弱になりがちです。", advice: "広く浅いニュースを追うのをやめ、自分の専門分野に関する「一次情報（海外の公式発表や論文など）」を能動的に取りに行く習慣をつけましょう。" },
+                { text: "信頼できる専門家の長文記事やニュースレターを、時間を決めて読む", score: 1, exp: "ノイズを遮断し、文脈（コンテキスト）を含めて情報を理解できている良い習慣です。", advice: "" },
+                { text: "情報収集の時間を最小限に絞り、大半の時間を「得た知識を自らの手で出力（実行・検証）する時間」に充てる", score: 2, exp: "「知っている」を「できる」に変えるには圧倒的な実行時間が必要です。インプットとアウトプットの黄金比を理解した行動です。", advice: "" }
+            ]
+        },
+        {
+            category: "【時間と事業構築】",
+            text: "SNSや事業で早く結果を出したい時、どういう戦略をとりますか？",
+            options: [
+                { text: "フォロワーを買う、または過激な炎上・釣りタイトルで一気に注目を集める", score: -1, exp: "【愚行】タイパを求めて禁じ手に手を染め、二度と回復しない「ブランドの死」を招く自己破壊行為です。", advice: "信用は築くのに数年かかり、崩れるのは一瞬です。虚構の数字を追うのをやめ、目の前の1人に刺さる価値提供を泥臭くやり直してください。" },
+                { text: "今流行っている最新のトレンド（タピオカ等）に便乗して、すぐに飽きられたら次へ行く", score: 0, exp: "【大衆の行動】常に自転車操業となり、何年経っても「自分自身の資産（ブランド・独自性）」が積み上がりません。", advice: "トレンドに乗るのも手ですが、その根底に「流行り廃りのない不変のテーマ（哲学）」を持たせ、資産が積み上がる構造を設計すべきです。" },
+                { text: "外注化やAIツールを駆使し、作業を効率化しながら品質を担保して継続する", score: 1, exp: "時間をレバレッジ（テコ）にしながら、品質を落とさずに継続する堅実な戦略です。", advice: "" },
+                { text: "結果が出るまで数年かかることを前提とし、自動化と継続性を最優先にした「無理のない仕組み」を淡々と回し続ける", score: 2, exp: "「弱く見せることが最強の防御である」という哲学の体現。短期的な勝敗を捨て、長期的な生存と複利効果を取りに行く最強の戦略です。", advice: "" }
             ]
         }
     ];
 
-    let questions = [...defaultQuestions];
     let currentIdx = 0;
     let scoreLog = [];
 
-    // UI制御
-    function switchTab(tab) {
-        document.getElementById('tab-play').classList.toggle('active', tab === 'play');
-        document.getElementById('tab-create').classList.toggle('active', tab === 'create');
-        document.getElementById('screen-play').classList.toggle('hidden', tab !== 'play');
-        document.getElementById('screen-create').classList.toggle('hidden', tab !== 'create');
-    }
-
-    // クイズ読み込み
     function loadQuiz() {
         if (currentIdx < questions.length) {
             const q = questions[currentIdx];
@@ -194,7 +183,7 @@
             const optArea = document.getElementById('q-options');
             optArea.innerHTML = '';
             
-            // 選択肢の表示（プロトタイプ用にスコアに関わらずそのまま出力）
+            // 選択肢の表示をシャッフルせずそのまま出力（プロトタイプ用）
             q.options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.textContent = opt.text;
@@ -212,29 +201,11 @@
             category: questions[currentIdx].category,
             selectedText: opt.text,
             score: opt.score,
-            exp: opt.exp
+            exp: opt.exp,
+            advice: opt.advice
         });
         currentIdx++;
         loadQuiz();
-    }
-
-    // 擬似ランキング算出ロジック（満点が1位、スコアに応じてリアルタイム配置）
-    function getRank(totalScore, maxPossible) {
-        const totalUsers = 245108; // 擬似母集団
-        if (totalScore === maxPossible) {
-            return { rank: 1, text: `1位 / ${totalUsers}人中 (神リテラシー・搾取される要素ゼロ)` };
-        }
-        
-        // スコアに応じた位置計算
-        let percent = 0;
-        if (totalScore >= maxPossible * 0.8) { percent = 0.02; } // 上位2%
-        else if (totalScore >= maxPossible * 0.5) { percent = 0.15; } // 上位15%
-        else if (totalScore >= 0) { percent = 0.55; } // 平均層
-        else { percent = 0.88; } // カモ層
-        
-        // 微小なランダム変動を加えてリアル感を演出
-        const exactRank = Math.floor(totalUsers * percent + (Math.random() * 500));
-        return { rank: exactRank, text: `${exactRank.toLocaleString()}位 / ${totalUsers.toLocaleString()}人中` };
     }
 
     function showResults() {
@@ -244,89 +215,40 @@
         const totalScore = scoreLog.reduce((sum, item) => sum + item.score, 0);
         const maxPossible = questions.length * 2;
         
-        const rankInfo = getRank(totalScore, maxPossible);
-        document.getElementById('rank-display').textContent = rankInfo.text;
-        document.getElementById('score-display').textContent = `獲得スコア: ${totalScore}点 (満点: ${maxPossible}点 / 最低: -${questions.length}点)`;
+        const totalUsers = 312049; 
+        let percent = totalScore >= maxPossible * 0.8 ? 0.01 : totalScore >= maxPossible * 0.5 ? 0.1 : totalScore >= 0 ? 0.6 : 0.9;
+        const exactRank = totalScore === maxPossible ? 1 : Math.floor(totalUsers * percent + (Math.random() * 1000));
+        
+        document.getElementById('rank-display').textContent = `${exactRank.toLocaleString()}位 / ${totalUsers.toLocaleString()}人中`;
+        document.getElementById('score-display').textContent = `獲得スコア: ${totalScore}点 (満点: ${maxPossible}点)`;
         
         const resList = document.getElementById('result-list');
         resList.innerHTML = '';
         
         scoreLog.forEach(item => {
             const div = document.createElement('div');
-            const sign = item.score >= 0 ? `+${item.score}` : `${item.score}`;
+            const sign = item.score > 0 ? `+${item.score}` : `${item.score}`;
             div.className = `result-item res-${sign}`;
             
+            // アドバイスのHTML生成（0点以下の悪手を選んだ場合のみ表示）
+            let adviceHtml = '';
+            if (item.score <= 0 && item.advice) {
+                adviceHtml = `<div class="advice-box">💡【改善アドバイス】<br>${item.advice}</div>`;
+            }
+
             div.innerHTML = `
-                <div style="font-size:0.8em; color:var(--gray);">${item.category}</div>
-                <div style="font-weight:bold; margin:5px 0;">Q. ${item.qText}</div>
-                <div style="font-size:0.95em; margin-bottom:5px;">あなたの選択: <span style="font-weight:bold;">「${item.selectedText}」</span></div>
+                <div style="font-size:0.85em; color:var(--gray); font-weight:bold;">${item.category}</div>
+                <div style="font-weight:bold; margin:8px 0; font-size:1.1em;">Q. ${item.qText}</div>
+                <div style="font-size:1em; margin-bottom:10px;">あなたの選択: <span style="font-weight:bold; color:#333;">「${item.selectedText}」</span></div>
                 <span class="badge bg-${sign}">判定: ${sign}点</span>
-                <div style="font-size:0.9em; background:#fff; padding:10px; border-radius:4px; border:1px solid #eee; margin-top:5px;">${item.exp}</div>
+                <div class="exp-box">${item.exp}</div>
+                ${adviceHtml}
             `;
             resList.appendChild(div);
         });
     }
 
-    function restartQuiz() {
-        currentIdx = 0;
-        scoreLog = [];
-        document.getElementById('quiz-area').classList.remove('hidden');
-        document.getElementById('result-area').classList.add('hidden');
-        loadQuiz();
-    }
-
-    // ユーザーによる問題作成機能
-    function addCustomQuestion() {
-        const category = document.getElementById('form-category').value;
-        const text = document.getElementById('form-text').value;
-        
-        const opt2 = document.getElementById('form-opt2').value;
-        const exp2 = document.getElementById('form-exp2').value;
-        
-        const opt1 = document.getElementById('form-opt1').value;
-        const exp1 = document.getElementById('form-exp1').value;
-        
-        const opt0 = document.getElementById('form-opt0').value;
-        const exp0 = document.getElementById('form-exp0').value;
-        
-        const optminus = document.getElementById('form-optminus').value;
-        const expminus = document.getElementById('form-expminus').value;
-
-        if (!text || !opt2 || !opt1 || !opt0 || !optminus) {
-            alert('すべての選択肢を入力してください。');
-            return;
-        }
-
-        const newQuestion = {
-            category: category,
-            text: text,
-            options: [
-                { text: opt2, score: 2, exp: exp2 || "最善の選択です。高いリテラシーを持っています。" },
-                { text: opt1, score: 1, exp: exp1 || "良い選択です。リスクを抑えられています。" },
-                { text: opt0, score: 0, exp: opt0.includes('【大衆の行動】') ? opt0 : `【大衆の行動】 ${exp0 || "人々がよく選ぶ無難な選択ですが、現状維持に過ぎません。"}` },
-                { text: optminus, score: -1, exp: `【愚行】 ${expminus || "長期的に経済的損失を被る可能性が極めて高い選択です。"}` }
-            ]
-        };
-
-        questions.push(newQuestion);
-        alert('新しい問題をシステムに組み込みました！「クイズに挑戦」の最後の問題として出題されます。');
-        
-        // フォームリセット
-        document.getElementById('form-text').value = '';
-        document.getElementById('form-opt2').value = '';
-        document.getElementById('form-exp2').value = '';
-        document.getElementById('form-opt1').value = '';
-        document.getElementById('form-exp1').value = '';
-        document.getElementById('form-opt0').value = '';
-        document.getElementById('form-exp0').value = '';
-        document.getElementById('form-optminus').value = '';
-        document.getElementById('form-expminus').value = '';
-        
-        switchTab('play');
-        restartQuiz();
-    }
-
-    // 初期起動
+    // 初期化
     loadQuiz();
 </script>
 </body>
