@@ -5,22 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>次世代マネーリテラシー判定プラットフォーム</title>
 <style>
-    :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --gray: #6c757d; }
-    body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; line-height: 1.6; }
-    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --gray: #6c757d; --dark: #333; }
+    body { font-family: sans-serif; background-color: #f4f7f6; padding: 10px; color: #333; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     
-    h1 { text-align: center; font-size: 1.6em; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    /* タブ切り替え */
+    .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; }
+    .tab { padding: 12px 15px; cursor: pointer; font-weight: bold; color: var(--gray); font-size: 0.9em; flex: 1; text-align: center; }
+    .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+    
+    h1 { text-align: center; font-size: 1.4em; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    
+    /* クイズ画面 */
     .q-area { font-size: 0.95em; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
-    .question { font-size: 1.25em; font-weight: bold; margin-bottom: 25px; }
-    
-    .options button { display: block; width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #eee; border-radius: 8px; background: #fafafa; cursor: pointer; text-align: left; font-size: 1em; transition: 0.2s; }
+    .question { font-size: 1.1em; font-weight: bold; margin-bottom: 20px; }
+    .options button { display: block; width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #eee; border-radius: 8px; background: #fafafa; cursor: pointer; text-align: left; font-size: 0.95em; transition: 0.2s; }
     .options button:hover { background: #f0f4f8; border-color: var(--primary); }
     
-    .rank-box { text-align: center; background: #eef2f7; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
-    .rank-title { font-size: 1.1em; font-weight: bold; }
-    .rank-number { font-size: 2.2em; font-weight: bold; color: var(--danger); margin: 10px 0; }
+    /* ステータス・結果画面 */
+    .param-box { margin-bottom: 15px; }
+    .param-label { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9em; margin-bottom: 5px; }
+    .param-bar-bg { width: 100%; background-color: #eee; border-radius: 6px; overflow: hidden; height: 12px; }
+    .param-bar-fill { height: 100%; background-color: var(--primary); transition: width 0.5s ease-in-out; }
     
-    .result-item { margin-bottom: 25px; padding: 20px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9; }
+    .rank-box { text-align: center; background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .rank-number { font-size: 2em; font-weight: bold; color: var(--danger); margin: 5px 0; }
+    
+    .result-item { margin-bottom: 25px; padding: 20px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9; text-align: left; }
     .res-+2 { border-left-color: var(--success); }
     .res-+1 { border-left-color: #71dd37; }
     .res-0 { border-left-color: var(--warning); }
@@ -35,41 +46,129 @@
     .exp-box { font-size: 0.95em; background: #fff; padding: 12px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px; }
     .advice-box { font-size: 0.95em; background: #e8f4f8; padding: 12px; border-radius: 4px; border: 1px solid #b8daff; margin-top: 10px; color: #004085; font-weight: bold; }
     
-    .submit-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    /* フォーム (問題作成) */
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
     
+    /* チャット画面 (有料) */
+    .chat-lock { text-align: center; padding: 40px 20px; background: #fff8f8; border: 1px dashed var(--danger); border-radius: 8px; }
+    .chat-lock h2 { color: var(--danger); }
+    .chat-window { border: 1px solid #ddd; border-radius: 8px; height: 300px; display: flex; flex-direction: column; background: #f9f9f9; opacity: 0.5; pointer-events: none; }
+    
+    .submit-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .hidden { display: none; }
 </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="tabs">
+        <div class="tab active" id="tab-play" onclick="switchTab('play')">クイズ</div>
+        <div class="tab" id="tab-status" onclick="switchTab('status')">ステータス</div>
+        <div class="tab" id="tab-create" onclick="switchTab('create')">問題作成</div>
+        <div class="tab" id="tab-chat" onclick="switchTab('chat')">AI相談(有料)</div>
+    </div>
+
     <div id="screen-play">
-        <h1>マネーリテラシー判定テスト</h1>
         <div id="quiz-area">
             <div class="q-area" id="q-category"></div>
             <div class="question" id="q-text"></div>
             <div class="options" id="q-options"></div>
         </div>
-        
         <div id="result-area" class="hidden">
-            <h1>判定結果とフィードバック</h1>
+            <h1 style="color:var(--success);">判定完了</h1>
+            <p style="text-align:center; font-weight:bold;">自動的にステータス画面へ遷移します...</p>
+        </div>
+    </div>
+
+    <div id="screen-status" class="hidden">
+        <h1>総合パラメータ</h1>
+        <div id="status-uncompleted" style="text-align:center; padding:20px;">
+            <p>クイズを完了すると、あなたのリテラシーパラメータと全問のフィードバックが可視化されます。</p>
+        </div>
+        <div id="status-completed" class="hidden">
             <div class="rank-box">
-                <div class="rank-title">あなたの全国暫定順位</div>
-                <div class="rank-number" id="rank-display">計算中...</div>
-                <div id="score-display" style="font-weight:bold; color:var(--primary);"></div>
+                <div>全国暫定順位</div>
+                <div class="rank-number" id="rank-display">-</div>
+                <div id="score-display"></div>
             </div>
-            <div id="result-list"></div>
-            <button class="submit-btn" onclick="location.reload()" style="background:#333;">最初からやり直す</button>
+            
+            <h2>分野別ステータス</h2>
+            <div id="radar-charts" style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee;">
+                </div>
+
+            <h2>行動の通信簿と改善提案</h2>
+            <div id="result-list">
+                </div>
+
+            <button class="submit-btn" onclick="location.reload()" style="background:var(--dark); margin-top:20px;">最初からやり直す</button>
+            <button class="submit-btn" onclick="switchTab('chat')" style="background:#ffc107; color:#333; margin-top:10px;">AIに弱点克服プランを相談する</button>
+        </div>
+    </div>
+
+    <div id="screen-create" class="hidden">
+        <h1>オリジナル問題の投稿</h1>
+        <div class="form-group">
+            <label>ジャンル</label>
+            <select id="form-category">
+                <option value="【消費】">消費</option>
+                <option value="【投資】">投資</option>
+                <option value="【健康】">健康</option>
+                <option value="【時間】">時間</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>問題文</label>
+            <textarea id="form-text" rows="2" placeholder="直面した状況を入力"></textarea>
+        </div>
+        <div class="form-group" style="border-left: 3px solid var(--success); padding-left: 10px;">
+            <label>選択肢 A (最善: +2点)</label>
+            <input type="text" id="form-opt2">
+        </div>
+        <div class="form-group" style="border-left: 3px solid #71dd37; padding-left: 10px;">
+            <label>選択肢 B (良: +1点)</label>
+            <input type="text" id="form-opt1">
+        </div>
+        <div class="form-group" style="border-left: 3px solid var(--warning); padding-left: 10px;">
+            <label>選択肢 C (普通: 0点)</label>
+            <input type="text" id="form-opt0">
+        </div>
+        <div class="form-group" style="border-left: 3px solid var(--danger); padding-left: 10px;">
+            <label>選択肢 D (悪手: -1点)</label>
+            <input type="text" id="form-optminus">
+        </div>
+        <button class="submit-btn" onclick="addCustomQuestion()">問題をシステムに追加</button>
+    </div>
+
+    <div id="screen-chat" class="hidden">
+        <h1>専属ライフプランナー（AI）</h1>
+        <div class="chat-lock">
+            <h2>🔒 プレミアム機能</h2>
+            <p>月額プランに加入すると、あなたの「ステータス（弱点）」と「解答履歴」を全て把握したAIアドバイザー（Oracle）が、具体的な行動計画を提案します。</p>
+            <button class="submit-btn" style="background:var(--success); width:auto; padding:10px 30px;">プランに加入する</button>
+        </div>
+        <div class="chat-window" style="margin-top:20px;">
+            <div style="flex:1; padding:10px;">
+                <div style="background:#e9ecef; padding:10px; border-radius:8px; display:inline-block; margin-bottom:10px; max-width: 80%;">
+                    【現状分析】現状のパラメータを分析しました。消費のコントロールは完璧ですが、時間対効果の概念に致命的な弱点があります。<br>
+                    【生涯損失試算】このままの行動を継続した場合、生涯で約4,500万円の逸失利益が発生します。改善のロードマップを出力しますか？
+                </div>
+            </div>
+            <div style="padding:10px; border-top:1px solid #ddd; display:flex;">
+                <input type="text" placeholder="メッセージを入力..." style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;" disabled>
+                <button style="padding:8px 15px; margin-left:5px; background:var(--primary); color:#fff; border:none; border-radius:4px;" disabled>送信</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const questions = [
-        // --- マネーリテラシー（消費・投資・家計管理）5問 ---
+    // 過去の会話で作成した全15問を完全に復元
+    const baseQuestions = [
+        // --- 消費・投資（5問） ---
         {
-            category: "【消費（最重要）】",
-            text: "移動手段として自動車が必要になりました。あなたの行動は？",
+            mainCategory: "消費", category: "【消費（最重要）】", text: "移動手段として自動車が必要になりました。あなたの行動は？",
             options: [
                 { text: "身の丈に合った中古の軽自動車やコンパクトカーを現金一括で買う", score: 2, exp: "資産価値の目減りを最小限に抑え、余計な金利手数料を完全に排除した最善の選択です。" },
                 { text: "必要な時だけカーシェアやレンタカー、公共交通機関で済ませる", score: 1, exp: "維持費（駐車場、税金、保険）を徹底的に削る合理的な判断です。" },
@@ -78,8 +177,7 @@
             ]
         },
         {
-            category: "【投資の勘違い（罠）】",
-            text: "将来が不安になり、副業やスキルアップのために「自己投資」をしようと考えました。どうしますか？",
+            mainCategory: "投資", category: "【投資の勘違い（罠）】", text: "将来が不安になり、副業やスキルアップのために「自己投資」をしようと考えました。どうしますか？",
             options: [
                 { text: "無料の公開教材や数千円の古典的専門書を読み、まずは自分で小さな実践を始める", score: 2, exp: "コストを最小化し、実戦を通じて学ぶ最も投資対効果（ROI）が高いアプローチです。" },
                 { text: "国の教育訓練給付金などが適用される、実績のある資格スクールに通う", score: 1, exp: "制度を活用してコストを抑えつつ、明確なスキル習得を狙う堅実な判断です。" },
@@ -88,8 +186,7 @@
             ]
         },
         {
-            category: "【消費と固定費】",
-            text: "スマートフォンの契約や毎月の固定費を見直すタイミングが来ました。どうしますか？",
+            mainCategory: "消費", category: "【消費と固定費】", text: "スマートフォンの契約や毎月の固定費を見直すタイミングが来ました。どうしますか？",
             options: [
                 { text: "即座に格安SIMの最安プランへ変更し、不要なサブスクはすべて解約する", score: 2, exp: "固定費の削減は、リスクゼロで確実に毎月のキャッシュフローを改善する最強の投資行動です。" },
                 { text: "クレジットカードの明細をすべて洗い出し、使っていないサービスを特定する", score: 1, exp: "支出を可視化し、無駄を発見するための正しい第一歩です。" },
@@ -98,8 +195,7 @@
             ]
         },
         {
-            category: "【資産運用】",
-            text: "生活防衛資金とは別に、余剰資金が50万円ほど貯まりました。このお金をどうしますか？",
+            mainCategory: "投資", category: "【資産運用】", text: "生活防衛資金とは別に、余剰資金が50万円ほど貯まりました。このお金をどうしますか？",
             options: [
                 { text: "税制優遇口座（新NISAなど）を開設し、全世界株のインデックスファンドに分散投資する", score: 2, exp: "資本主義の成長の果実を、最も手数料低く享受できる王道の長期資産形成です。" },
                 { text: "ネット銀行の預金口座など、少しでも金利が高く安全な場所に一時避難させる", score: 1, exp: "リスクをコントロールしつつ、現金の価値を守るための堅実な行動です。" },
@@ -108,8 +204,7 @@
             ]
         },
         {
-            category: "【消費と住居】",
-            text: "今後の住まい（家）の確保について、どのように計画を立てますか？",
+            mainCategory: "消費", category: "【消費と住居】", text: "今後の住まい（家）の確保について、どのように計画を立てますか？",
             options: [
                 { text: "自分の収入とライフプランに見合った賃貸に住み、余剰資金を運用に回す", score: 2, exp: "ライフステージの変化に柔軟に対応でき、不動産という単一資産に過度なレバレッジをかけない合理的な戦略です。" },
                 { text: "住宅補助などの福利厚生を活用する、または資産価値の下がりにくい中古物件を徹底調査して買う", score: 1, exp: "コストを抑える、あるいは不動産の「資産価値」というシビアな現実に着目したスマートなアプローチです。" },
@@ -118,10 +213,9 @@
             ]
         },
 
-        // --- 健康面（人生90年設計）5問 ---
+        // --- 健康面（5問） ---
         {
-            category: "【健康と収入】",
-            text: "今月の生活費が少し足りません。どうやって解決しますか？",
+            mainCategory: "健康", category: "【健康と収入】", text: "今月の生活費が少し足りません。どうやって解決しますか？",
             options: [
                 { text: "固定費を徹底的に見直し、生活水準を根本から下げて支出を最適化する", score: 2, exp: "人生90年を走り抜ける資本（健康）を守りつつ、キャッシュフローを根本改善する最善の選択です。" },
                 { text: "不用品をフリマアプリで売却し、一時的な現金を確保する", score: 1, exp: "健康を害さず、かつ身の回りの整理にもなるため、一時的な資金繰りとしては適切な行動です。" },
@@ -130,8 +224,7 @@
             ]
         },
         {
-            category: "【健康と予防医療】",
-            text: "歯医者にはどのタイミングで行きますか？",
+            mainCategory: "健康", category: "【健康と予防医療】", text: "歯医者にはどのタイミングで行きますか？",
             options: [
                 { text: "自費の予防歯科も含め、3ヶ月に1回定期的なクリーニングと検診を欠かさない", score: 2, exp: "歯1本の価値（約100万円）を理解し、生涯の医療費を最小化する最も投資対効果の高い行動です。" },
                 { text: "半年に1回、カレンダーに予定を入れて定期検診に行く", score: 1, exp: "最低限の予防医療を実践できており、将来のリスクを軽減できています。" },
@@ -140,8 +233,7 @@
             ]
         },
         {
-            category: "【健康と労働環境】",
-            text: "転職のオファーが来ました。どちらを選びますか？",
+            mainCategory: "健康", category: "【健康と労働環境】", text: "転職のオファーが来ました。どちらを選びますか？",
             options: [
                 { text: "給料は下がるが、定時退社で毎日運動と自炊ができ、副業も許可されている企業", score: 2, exp: "「健康維持」と「個人で稼ぐ力」の両立を視野に入れた、人生90年時代における堅牢な戦略です。" },
                 { text: "現状維持の給料だが、フルリモートで働く時間や場所の自由が利く企業", score: 1, exp: "通勤ストレスを減らし、空いた時間を自己投資に回せるため、長期的な期待値は高いです。" },
@@ -150,8 +242,7 @@
             ]
         },
         {
-            category: "【健康と生活習慣】",
-            text: "仕事が忙しい時期の運動習慣はどうしていますか？",
+            mainCategory: "健康", category: "【健康と生活習慣】", text: "仕事が忙しい時期の運動習慣はどうしていますか？",
             options: [
                 { text: "どんなに忙しくても、睡眠と1日30分の有酸素運動（または筋トレ）の時間は絶対に確保する", score: 2, exp: "脳のパフォーマンスを最大化し、長期的な生産性を落とさないトップ層の自己管理能力です。" },
                 { text: "通勤時間を利用して一駅分歩くなど、日常に運動を組み込んでいる", score: 1, exp: "時間を有効活用しながら基礎的な活動量を確保できている良い習慣です。" },
@@ -160,8 +251,7 @@
             ]
         },
         {
-            category: "【健康と嗜好品】",
-            text: "仕事で強いストレスを感じた時、どうやって解消しますか？",
+            mainCategory: "健康", category: "【健康と嗜好品】", text: "仕事で強いストレスを感じた時、どうやって解消しますか？",
             options: [
                 { text: "サウナ、瞑想、軽い運動など、身体を整えることで脳の疲労を物理的に抜く", score: 2, exp: "自律神経を意図的にコントロールし、翌日以降の生産性を高める自己投資としてのストレス解消法です。" },
                 { text: "気心の知れた少数の友人と、適度な食事や会話を楽しむ", score: 1, exp: "社会的な繋がりによる安心感で、健康的にストレスを緩和できています。" },
@@ -170,10 +260,9 @@
             ]
         },
 
-        // --- 時間的コスト（タイパの罠）5問 ---
+        // --- 時間的コスト（5問） ---
         {
-            category: "【時間と学習】",
-            text: "新しいビジネススキルを習得したい時、どうしますか？",
+            mainCategory: "時間", category: "【時間と学習】", text: "新しいビジネススキルを習得したい時、どうしますか？",
             options: [
                 { text: "基礎概念の理解にあえて膨大な時間をかけ、自分の手で実際にプロトタイプを作りながら試行錯誤する", score: 2, exp: "本質的な構造を深く理解することで、後からあらゆる応用が利く「真のタイムパフォーマンス」を実現する王道です。" },
                 { text: "実績のある専門書を数冊買い、週末にまとめて時間を取って読む", score: 1, exp: "体系的な知識を得るための正しいアプローチであり、着実に実力はつきます。" },
@@ -182,8 +271,7 @@
             ]
         },
         {
-            category: "【時間と人脈】",
-            text: "仕事やビジネスでの「人脈作り」をどう考えますか？",
+            mainCategory: "時間", category: "【時間と人脈】", text: "仕事やビジネスでの「人脈作り」をどう考えますか？",
             options: [
                 { text: "すぐには利益にならないが、互いの哲学に共感できる少数の相手と、数年単位で深い対話を重ねる", score: 2, exp: "利害関係を超えた深い信頼関係こそが、有事の際に自分を救う最大の無形資産となります。" },
                 { text: "今目の前にいるクライアントや同僚の期待値を少しだけ超える仕事を継続する", score: 1, exp: "地道な努力ですが、結果的にそれが最強のリファラル（紹介）を生む本質的な人脈構築です。" },
@@ -192,8 +280,7 @@
             ]
         },
         {
-            category: "【時間と業務改善】",
-            text: "職場で手作業のエラー（ミス）が頻発しています。どう対応しますか？",
+            mainCategory: "時間", category: "【時間と業務改善】", text: "職場で手作業のエラー（ミス）が頻発しています。どう対応しますか？",
             options: [
                 { text: "根本原因を分析し、AIやシステム連携を用いて「人間が介在しない完全自動化」を構築する", score: 2, exp: "最初の手間を惜しまず、永続的な不労所得（時間の創出）を生み出すシステムクリエイターの思考です。" },
                 { text: "エクセルのマクロや既存のSaaSツールを導入し、手作業の工程を半分に減らす", score: 1, exp: "テクノロジーを利用してミスを減らしつつ時間を生み出す、論理的な業務改善です。" },
@@ -202,8 +289,7 @@
             ]
         },
         {
-            category: "【時間と情報収集】",
-            text: "毎日の情報収集はどのように行っていますか？",
+            mainCategory: "時間", category: "【時間と情報収集】", text: "毎日の情報収集はどのように行っていますか？",
             options: [
                 { text: "情報収集の時間を最小限に絞り、大半の時間を「得た知識を自らの手で出力（実行・検証）する時間」に充てる", score: 2, exp: "インプットとアウトプットの黄金比を理解し、実行によってのみ現実が変わることを知っている行動です。" },
                 { text: "信頼できる専門家の長文記事やニュースレターを、時間を決めて読む", score: 1, exp: "ノイズを遮断し、文脈を含めて深く情報を理解できている良い習慣です。" },
@@ -212,8 +298,7 @@
             ]
         },
         {
-            category: "【時間と事業構築】",
-            text: "ビジネスやSNS等で結果を出したい時、どういう戦略をとりますか？",
+            mainCategory: "時間", category: "【時間と事業構築】", text: "ビジネスやSNS等で結果を出したい時、どういう戦略をとりますか？",
             options: [
                 { text: "結果が出るまで数年かかる前提で、自動化と継続性を最優先にした「無理のない仕組み」を淡々と回し続ける", score: 2, exp: "短期的な勝敗を捨て、長期的な生存と複利効果を取りに行く最強のディフェンス戦略です。" },
                 { text: "外注化やAIツールを駆使し、作業を効率化しながら品質を担保して継続する", score: 1, exp: "時間をレバレッジ（テコ）にしながら、品質を落とさずに継続する堅実な戦略です。" },
@@ -223,68 +308,117 @@
         }
     ];
 
-    // 出題順をランダム化し、選択肢もシャッフルする処理
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
+    let questions = [];
+    let currentIdx = 0;
+    let scoreLog = [];
+    let categoryScores = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
+    let categoryMax = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
+
+    function initQuiz() {
+        questions = JSON.parse(JSON.stringify(baseQuestions));
+        questions.forEach(q => {
+            // 選択肢のシャッフル
+            for (let i = q.options.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+            }
+            categoryMax[q.mainCategory] += 2;
+        });
+        // 問題文の出題順のシャッフル
+        for (let i = questions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+            [questions[i], questions[j]] = [questions[j], questions[i]];
         }
     }
 
-    let currentIdx = 0;
-    let scoreLog = [];
-    
-    // 初期化時に問題をシャッフル
-    shuffleArray(questions);
-    questions.forEach(q => shuffleArray(q.options));
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        document.getElementById(`screen-${tab}`).classList.remove('hidden');
+    }
 
     function loadQuiz() {
         if (currentIdx < questions.length) {
             const q = questions[currentIdx];
             document.getElementById('q-category').textContent = `問題 ${currentIdx + 1} / ${questions.length} ${q.category}`;
             document.getElementById('q-text').textContent = q.text;
-            
             const optArea = document.getElementById('q-options');
             optArea.innerHTML = '';
-            
             q.options.forEach(opt => {
                 const btn = document.createElement('button');
                 btn.textContent = opt.text;
-                btn.onclick = () => handleSelect(opt);
+                btn.onclick = () => handleSelect(q, opt);
                 optArea.appendChild(btn);
             });
         } else {
-            showResults();
+            finishQuiz();
         }
     }
 
-    function handleSelect(opt) {
+    function handleSelect(questionObj, selectedOption) {
+        // スコアの記録
+        categoryScores[questionObj.mainCategory] += selectedOption.score;
+        // 詳細な結果リスト用の記録
         scoreLog.push({
-            qText: questions[currentIdx].text,
-            category: questions[currentIdx].category,
-            selectedText: opt.text,
-            score: opt.score,
-            exp: opt.exp,
-            advice: opt.advice
+            category: questionObj.category,
+            qText: questionObj.text,
+            selectedText: selectedOption.text,
+            score: selectedOption.score,
+            exp: selectedOption.exp,
+            advice: selectedOption.advice
         });
+        
         currentIdx++;
         loadQuiz();
     }
 
-    function showResults() {
+    function finishQuiz() {
         document.getElementById('quiz-area').classList.add('hidden');
         document.getElementById('result-area').classList.remove('hidden');
         
-        const totalScore = scoreLog.reduce((sum, item) => sum + item.score, 0);
-        const maxPossible = questions.length * 2;
+        // 即座にステータス画面を更新し、タブを切り替える
+        updateStatusScreen();
+        setTimeout(() => {
+            switchTab('status');
+        }, 1000);
+    }
+
+    function updateStatusScreen() {
+        document.getElementById('status-uncompleted').classList.add('hidden');
+        document.getElementById('status-completed').classList.remove('hidden');
+
+        let totalScore = 0;
+        let totalMax = 0;
+        const radar = document.getElementById('radar-charts');
+        radar.innerHTML = '';
+
+        // 分野別パラメータの描画
+        for (const [cat, score] of Object.entries(categoryScores)) {
+            const max = categoryMax[cat];
+            totalScore += score;
+            totalMax += max;
+            
+            // UI表示用の計算（最低マイナス点を0基準にシフト）
+            const min = -(max / 2); 
+            const range = max - min;
+            let percent = ((score - min) / range) * 100;
+            if(percent < 0) percent = 0;
+
+            radar.innerHTML += `
+                <div class="param-box">
+                    <div class="param-label"><span>${cat}リテラシー</span> <span>${score} / ${max}</span></div>
+                    <div class="param-bar-bg"><div class="param-bar-fill" style="width: ${percent}%;"></div></div>
+                </div>
+            `;
+        }
         
-        const totalUsers = 312049; 
-        let percent = totalScore >= maxPossible * 0.8 ? 0.01 : totalScore >= maxPossible * 0.5 ? 0.1 : totalScore >= 0 ? 0.6 : 0.9;
-        const exactRank = totalScore === maxPossible ? 1 : Math.floor(totalUsers * percent + (Math.random() * 1000));
-        
-        document.getElementById('rank-display').textContent = `${exactRank.toLocaleString()}位 / ${totalUsers.toLocaleString()}人中`;
-        document.getElementById('score-display').textContent = `獲得スコア: ${totalScore}点 (満点: ${maxPossible}点)`;
-        
+        // 総合スコアと順位の描画
+        document.getElementById('score-display').textContent = `総合スコア: ${totalScore} / ${totalMax}点`;
+        const exactRank = totalScore === totalMax ? 1 : Math.floor(312049 * (totalScore >= totalMax * 0.5 ? 0.2 : 0.7) + (Math.random() * 1000));
+        document.getElementById('rank-display').textContent = `${exactRank.toLocaleString()}位 / 312,049人中`;
+
+        // 詳細な結果（15問分）の描画
         const resList = document.getElementById('result-list');
         resList.innerHTML = '';
         
@@ -310,6 +444,30 @@
         });
     }
 
+    function addCustomQuestion() {
+        const cat = document.getElementById('form-category').value;
+        const mainCat = cat.replace('【', '').replace('】', '');
+        const text = document.getElementById('form-text').value;
+        
+        if (!text) { alert('問題文を入力してください。'); return; }
+
+        baseQuestions.push({
+            mainCategory: mainCat,
+            category: cat,
+            text: text,
+            options: [
+                { text: document.getElementById('form-opt2').value, score: 2, exp: "ユーザー追加問題の正解行動です。" },
+                { text: document.getElementById('form-opt1').value, score: 1, exp: "ユーザー追加問題の良好な行動です。" },
+                { text: document.getElementById('form-opt0').value, score: 0, exp: "【大衆の行動】現状維持の行動です。" },
+                { text: document.getElementById('form-optminus').value, score: -1, exp: "【愚行】損失を招く行動です。" }
+            ]
+        });
+        alert('追加しました！リロードして再度挑戦してください。');
+        switchTab('play');
+    }
+
+    // 初期化実行
+    initQuiz();
     loadQuiz();
 </script>
 </body>
