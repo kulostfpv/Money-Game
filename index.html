@@ -513,7 +513,7 @@
         if (lossAmount === 0 || totalScore === totalMax) {
             oracleBox.innerHTML = `【現状分析】全パラメータが極めて優秀です。大衆の罠に陥るリスクはありません。<br><br>【即時実行タスク】現在の行動を継続し、余剰資金はすべて事業かインデックス投資に回してください。`;
         } else {
-            const lossString = (lossAmount / 10000).toLocaleString() + '万';
+            const lossString = Math.round(lossAmount / 10000).toLocaleString() + '万';
             let adviceText = "";
             if (worstCategory === "時間") adviceText = "直ちに目的のないショート動画の視聴を停止し、一次情報へのアクセスと実証実験にのみ可処分時間を投資してください。";
             if (worstCategory === "消費") adviceText = "直ちにすべてのサブスクリプションを解約し、見栄のための支出をゼロに設定してください。";
