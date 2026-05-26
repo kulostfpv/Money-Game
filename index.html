@@ -6,7 +6,7 @@
 <title>次世代マネーリテラシー判定プラットフォーム</title>
 <style>
     :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --gray: #6c757d; --dark: #333; --gold: #d4af37; }
-    body { font-family: sans-serif; background-color: #f4f7f6; padding: 10px; color: #333; line-height: 1.6; }
+    body { font-family: sans-serif; background-color: #f4f7f6; padding: 10px; color: #333; line-height: 1.6; padding-bottom: 80px; /* フローティングボタンの被り防止 */ }
     .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     
     .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; }
@@ -18,6 +18,31 @@
     
     .submit-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
     .submit-btn:hover { opacity: 0.9; }
+    
+    /* フローティングボタンUI */
+    #floating-consult-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gold);
+        color: #fff;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.1em;
+        font-weight: bold;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        z-index: 1000;
+        cursor: pointer;
+        transition: 0.3s;
+        width: 90%;
+        max-width: 400px;
+    }
+    #floating-consult-btn:hover {
+        opacity: 0.9;
+        transform: translateX(-50%) scale(1.02);
+    }
     
     /* クイズ・診断UI */
     .q-area { font-size: 0.95em; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
@@ -186,10 +211,7 @@
                 <div class="chat-window" style="min-height: 120px;">
                     <div class="ai-message" id="oracle-message"></div>
                 </div>
-                <div style="text-align: center;">
-                    <button class="submit-btn" onclick="startPainDiagnosis()" style="background:var(--gold); width:auto; padding:10px 30px; margin-top:15px;">ライフプランナーに相談する</button>
                 </div>
-            </div>
 
             <h2>公式15問の通信簿と改善提案</h2>
             <div id="result-list"></div>
@@ -232,7 +254,15 @@
     </div>
 </div>
 
+<button id="floating-consult-btn" class="hidden" onclick="startPainDiagnosis()">ライフプランナーに相談する</button>
+
 <script>
+    // ★フェイルセーフ: エラー発生時に画面へアラートを表示する（サイレントエラー防止）
+    window.onerror = function(message, source, lineno, colno, error) {
+        alert("【システムエラー検知】\n" + message + "\n行: " + lineno);
+        return false;
+    };
+
     const officialQuestions = [
         { mainCategory: "消費", category: "【消費（最重要）】", text: "移動手段として自動車が必要になりました。あなたの行動は？", options: [
             { text: "身の丈に合った中古の軽自動車やコンパクトカーを現金一括で買う", score: 2, exp: "資産価値の目減りを最小限に抑え、余計な金利手数料を完全に排除した最善の選択です。" },
@@ -360,13 +390,28 @@
 
     const ngWords = ["死ね", "殺す", "馬鹿", "バカ", "アホ", "ゴミ", "クズ", "カス", "ウンコ", "詐欺", "犯罪", "自殺", "レイプ", "暴力"];
 
+    // ★修正: switchTab内でnullエラーを防ぐための安全な処理と、フローティングボタンの表示制御
     function switchTab(tab) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('screen-userdata-form').classList.add('hidden');
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        document.getElementById(`screen-${tab}`).classList.remove('hidden');
+        
+        const tabElement = document.getElementById(`tab-${tab}`);
+        if (tabElement) tabElement.classList.add('active'); // nullチェック
+        
+        const screenElement = document.getElementById(`screen-${tab}`);
+        if (screenElement) screenElement.classList.remove('hidden'); // nullチェック
+
+        // ステータス画面（かつ判定完了時）のみ、フローティングボタンを表示
+        const floatingBtn = document.getElementById('floating-consult-btn');
+        if (floatingBtn) {
+            if (tab === 'status' && !document.getElementById('status-completed').classList.contains('hidden')) {
+                floatingBtn.classList.remove('hidden');
+            } else {
+                floatingBtn.classList.add('hidden');
+            }
+        }
     }
 
     function getScoreClass(score) {
@@ -536,10 +581,15 @@
             `;
             resList.appendChild(div);
         });
+
+        // 画面構築後にフローティングボタンを表示
+        document.getElementById('floating-consult-btn').classList.remove('hidden');
     }
 
     function startPainDiagnosis() {
         diagIdx = 0;
+        // 診断画面へ遷移した時点でフローティングボタンは非表示にする
+        document.getElementById('floating-consult-btn').classList.add('hidden');
         switchTab('diagnosis');
         document.getElementById('screen-diagnosis').classList.remove('hidden');
         loadDiagnosisQuestion();
