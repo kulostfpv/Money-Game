@@ -326,7 +326,6 @@
         ]}
     ];
 
-    // ★普遍的な「痛みの掘り起こし」診断質問5問データ
     const painDiagnosisQuestions = [
         { label: "【消費の痛み】", text: "口座残高やクレジットカードの請求明細を見て、「あれ、今月これだけしか残っていないの？」と冷や汗をかいたり、月末の支払いに追われて胃が痛くなるような思いをした経験はありますか？", 
           yes: "素晴らしい。あなたはキャッシュフローがマイナスになる恐怖を正しく認識できています。その胃の痛くなるような焦りこそが、現状を変える最強のトリガーです。その恐怖を二度と味わわないため、感情や意志力に頼らない「固定費の物理的破壊」と「強制天引きシステム」の構築に直ちに着手しましょう。", 
@@ -337,697 +336,29 @@
         { label: "【時間の痛み】", text: "毎日忙しく働き、スキマ時間にも有益な情報を集めているつもりなのに、ふと振り返ると「1年前と比べて、自分の実力や資産が全く積み上がっていない」という強烈な焦りや虚無感を感じたことはありますか？", 
           yes: "「インプットしただけで何も積み上がっていない」という絶望感に気づけたことは、大きな一歩です。それは、アルゴリズムに可処分時間を搾取され、他人のコンテンツの養分になっていた証拠です。今日から「受動的な消費」を完全に断ち切り、システム構築や発信といった「自らの資産を生み出す実行」へ時間を100%シフトさせる計画を立てましょう。", 
           no: "毎日、確実に自らの資産とスキルが複利で成長していると断言できるなら、現在の行動を継続してください。しかし、もし「毎日忙しい」こと自体を「前に進んでいる」と錯覚しているのだとすれば、あなたの市場価値は相対的に下落し続けています。時間の使い方の抜本的な構造改革が必要です。" },
-        { label: "【投資・学習の痛み】", text: "「現状を変えたい」と自己投資やノハウにお金を使ったにもかかわらず、結局なにも身につかず、「ただお金と時間を無駄に搾取されただけだった」と気づいた苦い経験はありますか？", 
-          yes: "あなたが失ったその金額は、高すぎる「無知の授業料」でした。しかし、「楽して稼げる魔法はない」「高額な対価を払っても他人は自分を救ってくれない」という残酷な真実を学んだことで、あなたは情報弱者から脱脱しました。もう二度と搾取されないための、地味で堅実な「自動化と継続」の仕組み作りを始めましょう。", 
+        { label: "【投資・学習の痛み】", text: "「現状を変えたい」と自己投資やノウハウにお金を使ったにもかかわらず、結局なにも身につかず、「ただお金と時間を無駄に搾取されただけだった」と気づいた苦い経験はありますか？", 
+          yes: "あなたが失ったその金額は、高すぎる「無知の授業料」でした。しかし、「楽して稼げる魔法はない」「高額な対価を払っても他人は自分を救ってくれない」という残酷な真実を学んだことで、あなたは情報弱者から脱却しました。もう二度と搾取されないための、地味で堅実な「自動化と継続」の仕組み作りを始めましょう。", 
           no: "これまで罠を回避してきたあなたのリサーチ能力は優秀です。しかし、現在あなたが支払っているオンラインサロンやサブスクリプションの費用は、本当に「投資対効果（ROI）」を生み出していますか？「所属している安心感」にお金を払っているだけならば、それは投資ではなくただの浪費です。冷徹な費用対効果の算出が必要です。" },
         { label: "【決断の痛み】", text: "「あの時、面倒くさがらずにすぐ見直していれば、こんな大損はしなかったのに」と、自身の『決断を後回しにする癖』によって明確な実害（金銭的・時間的ペナルティ）を被り、二度と同じ失敗はしないと誓った決定的な出来事はありますか？", 
           yes: "決断の先送り（プロクラスティネーション）は性格の問題ではなく、環境とシステムの欠陥です。後回しによって被ったその金銭的・時間的ペナルティを、二度と繰り返してはなりません。「人間の意志は必ず負ける」という前提に立ち、システムが自動的に最適解を選択するような「選択の排除」を設計する必要があります。", 
           no: "全ての事象に対して、即座に最も合理的な決断を下し続けてきたのであれば、あなたは上位1%のトップ層です。しかし、もし「後回しにしたことによる見えない機会損失」に気づいてすら いないのだとすれば、それは最も危険な状態です。あなたが行動しなかった間に失われた利益を、一度正確に可視化する必要があります。" }
     ];
 
-    let ugcDatabase = [...ugcDatabase]; 
-    let currentMode = ''; let questions = []; let currentIdx = 0; let scoreLog = [];
-    let categoryScores = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
-    let categoryMax = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
-    let diagIdx = 0; // 痛みの診断用インデックス
-
-    function switchTab(tab) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('div[id^="screen-"]').forEach(s => s.classList.add('hidden'));
-        document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('screen-userdata-form').classList.add('hidden');
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        document.getElementById(`screen-${tab}`).classList.remove('hidden');
-    }
-
-    function getScoreClass(score) {
-        if (score === 2) return 'plus2'; if (score === 1) return 'plus1';
-        if (score === 0) return 'zero'; if (score === -1) return 'minus1';
-        return 'zero';
-    }
-
-    function startQuiz(mode) {
-        currentMode = mode; currentIdx = 0; scoreLog = [];
-        categoryScores = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
-        categoryMax = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
-
-        let base = mode === 'official' ? officialQuestions : ugcDatabase;
-        questions = JSON.parse(JSON.stringify(base));
-        
-        questions.forEach(q => {
-            for (let i = q.options.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
-            }
-            if(mode === 'official') categoryMax[q.mainCategory] += 2;
-        });
-
-        for (let i = questions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [questions[i], questions[j]] = [questions[j], questions[i]];
-        }
-
-        document.getElementById(`screen-${mode}`).classList.add('hidden');
-        document.getElementById('quiz-screen').classList.remove('hidden');
-        loadQuiz();
-    }
-
-    function loadQuiz() {
-        if (currentIdx < questions.length) {
-            const q = questions[currentIdx];
-            document.getElementById('q-category').textContent = `問題 ${currentIdx + 1} / ${questions.length} ${q.category}`;
-            document.getElementById('q-text').textContent = q.text;
-            const optArea = document.getElementById('q-options');
-            optArea.innerHTML = '';
-            q.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.textContent = opt.text;
-                btn.onclick = () => handleSelect(q, opt);
-                optArea.appendChild(btn);
-            });
-        } else {
-            finishQuiz();
-        }
-    }
-
-    function handleSelect(questionObj, selectedOption) {
-        if(currentMode === 'official') categoryScores[questionObj.mainCategory] += selectedOption.score;
-        scoreLog.push({
-            category: questionObj.category, qText: questionObj.text, selectedText: selectedOption.text,
-            score: selectedOption.score, exp: selectedOption.exp, advice: selectedOption.advice || ""
-        });
-        currentIdx++;
-        loadQuiz();
-    }
-
-    function finishQuiz() {
-        document.getElementById('quiz-screen').classList.add('hidden');
-        if (currentMode === 'official') {
-            document.getElementById('screen-userdata-form').classList.remove('hidden');
-        } else {
-            updateUGCResultScreen();
-            document.getElementById('screen-ugc-result').classList.remove('hidden');
-        }
-    }
-
-    function calculateLifetimeLoss(age, annualIncome, scores) {
-        let totalLoss = 0; const incomeYen = annualIncome * 10000;
-        const workingYearsLeft = Math.max(0, 65 - age); const lifeYearsLeft = Math.max(0, 90 - age);
-        const hourlyWage = incomeYen / 2000;
-
-        for (const [cat, score] of Object.entries(scores)) {
-            const maxScore = categoryMax[cat];
-            if (maxScore === 0 || score >= maxScore) continue;
-            const lossRatio = (maxScore - score) / maxScore;
-
-            if (cat === "時間") totalLoss += (hourlyWage * 2 * 365 * workingYearsLeft) * lossRatio;
-            else if (cat === "健康") totalLoss += (5000000 + (incomeYen * 2)) * lossRatio;
-            else if (cat === "投資") {
-                const yearlyInvestment = incomeYen * 0.1; let investedAmount = 0; let savedAmount = 0;
-                for (let i = 0; i < lifeYearsLeft; i++) {
-                    investedAmount = (investedAmount + yearlyInvestment) * 1.05; savedAmount += yearlyInvestment;
-                }
-                totalLoss += (investedAmount - savedAmount) * lossRatio;
-            }
-            else if (cat === "消費") totalLoss += (30000 * 12 * lifeYearsLeft) * lossRatio;
-        }
-        return Math.floor(totalLoss);
-    }
-
-    function submitUserData() {
-        const ageInput = document.getElementById('input-age').value;
-        const incomeInput = document.getElementById('input-income').value;
-        const age = ageInput ? parseInt(ageInput) : 35;
-        const annualIncome = incomeInput ? parseInt(incomeInput) : 400;
-
-        document.getElementById('screen-userdata-form').classList.add('hidden');
-        updateStatusScreen(age, annualIncome);
-        switchTab('status');
-    }
-
-    function updateStatusScreen(age, annualIncome) {
-        document.getElementById('status-uncompleted').classList.add('hidden');
-        document.getElementById('status-completed').classList.remove('hidden');
-
-        let totalScore = 0; let totalMax = 0; let worstCategory = "時間"; let minScore = 999;
-        const radar = document.getElementById('radar-charts'); radar.innerHTML = '';
-
-        for (const [cat, score] of Object.entries(categoryScores)) {
-            const max = categoryMax[cat]; totalScore += score; totalMax += max;
-            const minVal = -(max / 2); const range = max - minVal;
-            let percent = ((score - minVal) / range) * 100; if(percent < 0) percent = 0;
-            
-            if (score < minScore) { minScore = score; worstCategory = cat; }
-
-            radar.innerHTML += `
-                <div class="param-box">
-                    <div class="param-label"><span>${cat}リテラシー</span> <span>${score} / ${max}</span></div>
-                    <div class="param-bar-bg"><div class="param-bar-fill" style="width: ${percent}%;"></div></div>
-                </div>
-            `;
-        }
-        
-        document.getElementById('score-display').textContent = `総合スコア: ${totalScore} / ${totalMax}点`;
-        const exactRank = totalScore === totalMax ? 1 : Math.floor(312049 * (totalScore >= totalMax * 0.5 ? 0.2 : 0.7) + (Math.random() * 1000));
-        document.getElementById('rank-display').textContent = `${exactRank.toLocaleString()}位 / 312,049人中`;
-
-        const lossAmount = calculateLifetimeLoss(age, annualIncome, categoryScores);
-        const oracleBox = document.getElementById('oracle-message');
-        
-        if (lossAmount === 0 || totalScore === totalMax) {
-            oracleBox.innerHTML = `【現状分析】全パラメータが極めて優秀です。大衆の罠に陥るリスクはありません。<br><br>【即時実行タスク】現在の行動を継続し、余剰資金はすべて事業かインデックス投資に回してください。`;
-        } else {
-            // 小数点以下四捨五入（Math.round）を適用
-            const lossString = Math.round(lossAmount / 10000).toLocaleString() + '万';
-            let adviceText = "";
-            if (worstCategory === "時間") adviceText = "直ちに目的のないショート動画の視聴を停止し、一次情報へのアクセスと実証実験にのみ可処分時間を投資してください。";
-            if (worstCategory === "消費") adviceText = "直ちにすべてのサブスクリプションを解約し、見栄のための支出をゼロに設定してください。";
-            if (worstCategory === "投資") adviceText = "直ちにネット証券を開設し、手数料0.2%以下の全世界株インデックスファンドへの自動積立を設定してください。";
-            if (worstCategory === "健康") adviceText = "直ちに睡眠時間を7時間確保するよう生活を再設計し、定期的な歯科検診を予約してください。";
-
-            oracleBox.innerHTML = `
-                【現状分析】解答履歴を分析しました。あなたのパラメータは<span class="text-danger">「${worstCategory}リテラシー」に致命的な弱点</span>が存在します。<br><br>
-                【生涯損失試算】現在の年齢（${age}歳）と年収（${annualIncome}万円）をベースに試算した結果、このままの行動を継続した場合、寿命の切り売りと機会損失により、生涯で<span class="text-danger" style="font-size: 1.15em;">約${lossString}円の逸失利益</span>が発生します。<br>
-                <span class="text-black-bold">【即時実行タスク】${adviceText}</span>
-            `;
-        }
-
-        const resList = document.getElementById('result-list'); resList.innerHTML = '';
-        scoreLog.forEach(item => {
-            const div = document.createElement('div'); const scoreClass = getScoreClass(item.score);
-            const sign = item.score > 0 ? `+${item.score}` : `${item.score}`;
-            div.className = `result-item res-${scoreClass}`;
-            let adviceHtml = (item.score <= 0 && item.advice) ? `<div class="text-black-bold">💡改善行動: ${item.advice}</div>` : '';
-
-            div.innerHTML = `
-                <div style="font-size:0.85em; color:var(--gray); font-weight:bold;">${item.category}</div>
-                <div style="font-weight:bold; margin:8px 0;">Q. ${item.qText}</div>
-                <div style="margin-bottom:10px;">あなたの選択: <b>「${item.selectedText}」</b> <span class="score-badge bg-${scoreClass}">獲得: ${sign}点</span></div>
-                <div class="exp-box">${item.exp}</div>
-                ${adviceHtml}
-            `;
-            resList.appendChild(div);
-        });
-    }
-
-    // ★新設: 痛みの掘り起こし診断ロジック (映画診断風システム)
-    function startPainDiagnosis() {
-        diagIdx = 0;
-        switchTab('diagnosis');
-        document.getElementById('screen-diagnosis').classList.remove('hidden');
-        loadDiagnosisQuestion();
-    }
-
-    function loadDiagnosisQuestion() {
-        const q = painDiagnosisQuestions[diagIdx];
-        document.getElementById('diag-step-label').textContent = `深層問診 ${diagIdx + 1} / 5 ${q.label}`;
-        document.getElementById('diag-question-text').textContent = q.text;
-        
-        // UIリセット
-        document.getElementById('diag-button-group').classList.remove('hidden');
-        document.getElementById('diag-response-area').classList.add('hidden');
-    }
-
-    function handleDiagnosisAnswer(isYes) {
-        const q = painDiagnosisQuestions[diagIdx];
-        const responseText = isYes ? q.yes : q.no;
-        
-        document.getElementById('diag-button-group').classList.add('hidden');
-        document.getElementById('diag-response-area').classList.remove('hidden');
-        document.getElementById('diag-response-text').innerHTML = `<b>【プランナーの見解】</b><br>${responseText}`;
-        
-        const nextBtn = document.getElementById('diag-next-btn');
-        if (diagIdx === painDiagnosisQuestions.length - 1) {
-            nextBtn.textContent = "専用のチャットルーム（AI相談）を開設する";
-        } else {
-            nextBtn.textContent = "次の質問へ進む";
-        }
-    }
-
-    function nextDiagnosisStep() {
-        diagIdx++;
-        if (diagIdx < painDiagnosisQuestions.length) {
-            loadDiagnosisQuestion();
-        } else {
-            // 5問終了後、決済なしで即チャット画面へ遷移
-            alert("深層問診が完了しました。あなた専用のAI相談チャットルームのロックを解除しました。");
-            switchTab('chat');
-        }
-    }
-
-    // ★新設: バックエンドURLを連携した有料チャット機能 (決済判定なし)
-    async function sendChatMessage() {
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if (!text) return;
-
-        const chatBox = document.getElementById('chat-box');
-        
-        // ユーザーの吹き出し追加
-        const userDiv = document.createElement('div');
-        userDiv.className = 'chat-bubble user';
-        userDiv.textContent = text;
-        chatBox.appendChild(userDiv);
-        input.value = '';
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        // タイピング中(ローディング)のダミー表示
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'chat-bubble ai';
-        loadingDiv.textContent = '思考中...';
-        chatBox.appendChild(loadingDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-        try {
-            // 指定されたWorkersのバックエンドゲートウェイURLへPOST送信
-            const response = await fetch('https://kurolo-gateway.kulostfpv.workers.dev/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text, history: scoreLog })
-            });
-            
-            chatBox.removeChild(loadingDiv);
-            const aiDiv = document.createElement('div');
-            aiDiv.className = 'chat-bubble ai';
-
-            if (response.ok) {
-                const data = await response.json();
-                aiDiv.textContent = data.reply || "バックエンドからの応答を受信しました。";
-            } else {
-                // HTTPエラー時のプロトタイプ用フォールバック
-                aiDiv.textContent = `【プロトタイプ応答】バックエンド(Workers)へのデータ送信は成功（ステータス: ${response.status}）しました。本番環境ではここにGeminiの返答が出力されます。`;
-            }
-            chatBox.appendChild(aiDiv);
-        } catch (error) {
-            // ネットワークエラー、CORS制限時のフォールバック
-            chatBox.removeChild(loadingDiv);
-            const aiDiv = document.createElement('div');
-            aiDiv.className = 'chat-bubble ai';
-            aiDiv.textContent = `【ローカルデモ応答】送信成功。接続先URL: https://kurolo-gateway.kulostfpv.workers.dev/ \n\nお酒や高額セミナーといった、目先の感情的な依存やサンクコストから脱却するためのロードマップを、Workers側のプログラムと連携して構築可能です。`;
-            chatBox.appendChild(aiDiv);
-        }
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // 以下、UGCおよび既存のユーティリティ（前回の仕様を完全維持）
-    function updateUGCResultScreen() {
-        const totalScore = scoreLog.reduce((sum, item) => sum + item.score, 0);
-        document.getElementById('ugc-score').textContent = `${totalScore} 点`;
-        const resList = document.getElementById('ugc-result-list'); resList.innerHTML = '';
-        scoreLog.forEach((item, index) => {
-            const div = document.createElement('div'); const scoreClass = getScoreClass(item.score);
-            const sign = item.score > 0 ? `+${item.score}` : `${item.score}`;
-            div.className = `result-item res-${scoreClass}`;
-            div.innerHTML = `
-                <div style="font-weight:bold; margin-bottom:10px;">Q. ${item.qText}</div>
-                <div style="font-size:0.95em; margin-bottom:5px;">選択: 「${item.selectedText}」 <span class="score-badge bg-${scoreClass}">${sign}点</span></div>
-                <div class="exp-box">${item.exp}</div>
-                <div class="rating-box">
-                    <button class="rating-btn good" onclick="submitRating(${index}, 'good')">👍 良問</button>
-                    <button class="rating-btn bad" onclick="submitRating(${index}, 'bad')">👎 悪問</button>
-                </div>
-            `;
-            resList.appendChild(div);
-        });
-    }
-
-    function addCustomQuestion() {
-        const text = document.getElementById('form-text').value;
-        const opt2 = document.getElementById('form-opt2').value;
-        const opt1 = document.getElementById('form-opt1').value;
-        const opt0 = document.getElementById('form-opt0').value;
-        const optminus = document.getElementById('form-optminus').value;
-        if (!text || !opt2 || !opt1 || !opt0 || !optminus) { alert('すべての項目を入力してください。'); return; }
-        const allInputText = [text, opt2, opt1, opt0, optminus].join(" ");
-        const foundNgWord = ngWords.find(word => allInputText.includes(word));
-        if (foundNgWord) { alert(`【エラー】不適切な単語（${foundNgWord}）が含まれているため、投稿できません。`); return; }
-        const validation = isValidQuestion(text);
-        if (!validation.valid) { alert(`【投稿エラー】${validation.reason}`); return; }
-        if (opt2.length < 3 || opt1.length < 3 || opt0.length < 3 || optminus.length < 3) { alert('【投稿エラー】各選択肢は最低3文字以上で具体的に記述してください。'); return; }
-
-        ugcDatabase.push({
-            mainCategory: document.getElementById('form-category').value.replace('【', '').replace('】', ''),
-            category: document.getElementById('form-category').value, text: text,
-            options: [ { text: opt2, score: 2, exp: "投稿者の最善手です。" }, { text: opt1, score: 1, exp: "投稿者の次善手です。" }, { text: opt0, score: 0, exp: "大衆が選びがちな行動です。" }, { text: optminus, score: -1, exp: "損失を招く行動です。" } ]
-        });
-        alert('判定をクリアしました。道場データベースに追加します！');
-        document.getElementById('form-text').value = ''; document.getElementById('form-opt2').value = ''; document.getElementById('form-opt1').value = ''; document.getElementById('form-opt0').value = ''; document.getElementById('form-optminus').value = '';
-    }
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>次世代マネーリテラシー判定プラットフォーム</title>
-<style>
-    :root { --primary: #0056b3; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --gray: #6c757d; --dark: #333; --gold: #d4af37; }
-    body { font-family: sans-serif; background-color: #f4f7f6; padding: 10px; color: #333; line-height: 1.6; }
-    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    
-    .tabs { display: flex; border-bottom: 2px solid #ddd; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; }
-    .tab { padding: 12px 10px; cursor: pointer; font-weight: bold; color: var(--gray); font-size: 0.85em; flex: 1; text-align: center; }
-    .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
-    
-    h1 { text-align: center; font-size: 1.4em; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-    h2 { font-size: 1.2em; color: var(--dark); border-left: 4px solid var(--primary); padding-left: 10px; margin-top: 30px;}
-    
-    .submit-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-    .submit-btn:hover { opacity: 0.9; }
-    
-    /* クイズ・診断UI */
-    .q-area { font-size: 0.95em; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
-    .question { font-size: 1.1em; font-weight: bold; margin-bottom: 20px; }
-    .options button { display: block; width: 100%; padding: 15px; margin-bottom: 12px; border: 2px solid #eee; border-radius: 8px; background: #fafafa; cursor: pointer; text-align: left; font-size: 0.95em; transition: 0.2s; }
-    .options button:hover { background: #f0f4f8; border-color: var(--primary); }
-    
-    /* ステータス・結果UI */
-    .param-box { margin-bottom: 15px; }
-    .param-label { display: flex; justify-content: space-between; font-weight: bold; font-size: 0.9em; margin-bottom: 5px; }
-    .param-bar-bg { width: 100%; background-color: #eee; border-radius: 6px; overflow: hidden; height: 12px; }
-    .param-bar-fill { height: 100%; background-color: var(--primary); transition: width 0.5s ease-in-out; }
-    .rank-box { text-align: center; background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-    .rank-number { font-size: 2em; font-weight: bold; color: var(--danger); margin: 5px 0; }
-    
-    /* 結果アイテムと色連動クラス */
-    .result-item { margin-bottom: 25px; padding: 20px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9; text-align: left; }
-    .res-plus2 { border-left-color: var(--success); }
-    .res-plus1 { border-left-color: #71dd37; }
-    .res-zero { border-left-color: var(--warning); }
-    .res-minus1 { border-left-color: var(--danger); }
-    
-    .score-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.9em; font-weight: bold; color: #fff; margin-bottom: 10px; }
-    .bg-plus2 { background: var(--success); color: #fff; }
-    .bg-plus1 { background: #71dd37; color: #fff; }
-    .bg-zero { background: var(--warning); color: #333; }
-    .bg-minus1 { background: var(--danger); color: #fff; }
-    
-    .exp-box { font-size: 0.95em; background: #fff; padding: 12px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px; line-height: 1.5;}
-    
-    /* フォーム (共通) */
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    
-    /* ユーザーデータ入力画面 */
-    #screen-userdata-form { background: #fffdf5; border: 2px solid var(--primary); padding: 30px; border-radius: 8px; text-align: center; }
-    #screen-userdata-form h2 { color: var(--primary); margin-top: 0; border: none; padding: 0; }
-    
-    /* 痛みの掘り起こし診断UI */
-    .pain-box { background: #fffdf5; border: 1px solid var(--gold); padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: left; }
-    .pain-ans-box { background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #ddd; margin-top: 15px; font-size: 0.95em; line-height: 1.6; }
-    
-    /* チャットUI */
-    .chat-container { border: 1px solid #ddd; border-radius: 8px; height: 400px; display: flex; flex-direction: column; background: #f9f9f9; }
-    .chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-    .chat-bubble { max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 0.95em; line-height: 1.5; word-break: break-all; }
-    .chat-bubble.ai { background: #e9ecef; align-self: flex-start; color: #333; }
-    .chat-bubble.user { background: var(--primary); align-self: flex-end; color: #fff; }
-    .chat-input-area { padding: 10px; border-top: 1px solid #ddd; display: flex; background: #fff; border-radius: 0 0 8px 8px; }
-    .chat-input-area input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95em; }
-    .chat-input-area button { padding: 10px 20px; margin-left: 10px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    
-    .text-danger { color: var(--danger); font-weight: bold; }
-    .text-black-bold { color: #000; font-weight: bold; font-size: 1.05em; display: block; margin-top: 10px; border-top: 1px solid #ccc; padding-top: 10px; }
-    
-    .hidden { display: none; }
-</style>
-</head>
-<body>
-
-<div class="container">
-    <div class="tabs">
-        <div class="tab active" id="tab-official" onclick="switchTab('official')">公式判定</div>
-        <div class="tab" id="tab-ugc" onclick="switchTab('ugc')">みんなの道場</div>
-        <div class="tab" id="tab-create" onclick="switchTab('create')">問題作成</div>
-        <div class="tab" id="tab-status" onclick="switchTab('status')">ステータス</div>
-        <div class="tab" id="tab-chat" onclick="switchTab('chat')">AI相談</div>
-    </div>
-
-    <div id="screen-official">
-        <h1>公式リテラシー判定</h1>
-        <div id="official-start">
-            <p>厳選された15問の公式ベンチマークテストです。あなたのリテラシーの絶対値と全国順位を正確に測定します。</p>
-            <button class="submit-btn" onclick="startQuiz('official')">公式テストを開始する</button>
-        </div>
-    </div>
-
-    <div id="screen-ugc" class="hidden">
-        <h1>みんなの道場（UGC）</h1>
-        <div id="ugc-start">
-            <p>全国のユーザーが作成した問題データベースから、毎回ランダムに15問が出題されます。</p>
-            <button class="submit-btn" onclick="startQuiz('ugc')" style="background: var(--success);">道場のテストを開始する</button>
-        </div>
-    </div>
-
-    <div id="quiz-screen" class="hidden">
-        <div id="quiz-area">
-            <div class="q-area" id="q-category"></div>
-            <div class="question" id="q-text"></div>
-            <div class="options" id="q-options"></div>
-        </div>
-    </div>
-
-    <div id="screen-userdata-form" class="hidden">
-        <h2>判定処理が完了しました</h2>
-        <p style="font-size: 0.95em; color: var(--gray);">より正確な「全国順位」と「生涯損失額（逸失利益）」を算出するため、以下の基本情報を入力して結果を表示してください。</p>
-        <div class="form-group" style="text-align: left; max-width: 300px; margin: 20px auto;">
-            <label>現在の年齢 (歳)</label>
-            <input type="number" id="input-age" placeholder="例: 35" min="18" max="100">
-        </div>
-        <div class="form-group" style="text-align: left; max-width: 300px; margin: 20px auto;">
-            <label>現在の概算年収 (万円)</label>
-            <input type="number" id="input-income" placeholder="例: 500" min="0">
-        </div>
-        <button class="submit-btn" onclick="submitUserData()" style="max-width: 300px;">結果を表示する</button>
-    </div>
-
-    <div id="screen-ugc-result" class="hidden">
-        <h1 style="color:var(--success);">道場 修了</h1>
-        <p style="text-align:center; font-weight:bold;">あなたの獲得スコア: <span id="ugc-score"></span></p>
-        <div id="ugc-result-list"></div>
-        <button class="submit-btn" onclick="switchTab('ugc')" style="background:var(--dark);">道場トップに戻る</button>
-    </div>
-
-    <div id="screen-create" class="hidden">
-        <h1>オリジナル問題の投稿</h1>
-        <div class="form-group">
-            <label>ジャンル</label>
-            <select id="form-category">
-                <option value="【消費】">消費</option>
-                <option value="【投資】">投資</option>
-                <option value="【健康】">健康</option>
-                <option value="【時間】">時間</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>問題文 (15文字以上 / 「。」「？」必須)</label>
-            <textarea id="form-text" rows="2" placeholder="直面した状況を具体的に入力してください。"></textarea>
-        </div>
-        <div class="form-group" style="border-left: 3px solid var(--success); padding-left: 10px;">
-            <label>選択肢 A (最善: +2点)</label>
-            <input type="text" id="form-opt2" placeholder="各選択肢は3文字以上">
-        </div>
-        <div class="form-group" style="border-left: 3px solid #71dd37; padding-left: 10px;">
-            <label>選択肢 B (良: +1点)</label>
-            <input type="text" id="form-opt1">
-        </div>
-        <div class="form-group" style="border-left: 3px solid var(--warning); padding-left: 10px;">
-            <label>選択肢 C (普通: 0点)</label>
-            <input type="text" id="form-opt0">
-        </div>
-        <div class="form-group" style="border-left: 3px solid var(--danger); padding-left: 10px;">
-            <label>選択肢 D (悪手: -1点)</label>
-            <input type="text" id="form-optminus">
-        </div>
-        <button class="submit-btn" onclick="addCustomQuestion()">問題をシステムに追加</button>
-    </div>
-
-    <div id="screen-status" class="hidden">
-        <h1>総合パラメータ（公式判定）</h1>
-        <div id="status-uncompleted" style="text-align:center; padding:20px;">
-            <p>「公式判定」を完了すると、あなたのリテラシーが可視化されます。</p>
-        </div>
-        <div id="status-completed" class="hidden">
-            <div class="rank-box">
-                <div>全国暫定順位</div>
-                <div class="rank-number" id="rank-display">-</div>
-                <div id="score-display"></div>
-            </div>
-            <h2>分野別ステータス</h2>
-            <div id="radar-charts" style="margin-bottom: 20px;"></div>
-            
-            <div class="premium-lock" style="margin-bottom: 30px; text-align: left; border-color: var(--gold);">
-                <h3 style="color:var(--gold); margin-top:0; text-align:center;">🤖 AIライフプランナー (Oracle)</h3>
-                <div class="chat-window" style="min-height: 120px;">
-                    <div class="ai-message" id="oracle-message"></div>
-                </div>
-                <div style="text-align: center;">
-                    <button class="submit-btn" onclick="startPainDiagnosis()" style="background:var(--gold); width:auto; padding:10px 30px; margin-top:15px;">ライフプランナーに相談する</button>
-                </div>
-            </div>
-
-            <h2>公式15問の通信簿と改善提案</h2>
-            <div id="result-list"></div>
-        </div>
-    </div>
-
-    <div id="screen-diagnosis" class="hidden">
-        <h1>ライフプランナー深層診断</h1>
-        <p style="font-size:0.9em; color:var(--gray); text-align:center;">あなたの現状の痛みをあぶり出し、最適な防衛策を特定します。</p>
-        <div class="pain-box">
-            <div class="q-area" id="diag-step-label"></div>
-            <div class="question" id="diag-question-text" style="font-size:1.1em; margin-bottom:15px;"></div>
-            
-            <div id="diag-button-group" style="display:flex; gap:10px;">
-                <button class="submit-btn" onclick="handleDiagnosisAnswer(true)" style="background:var(--danger); flex:1;">はい (経験がある)</button>
-                <button class="submit-btn" onclick="handleDiagnosisAnswer(false)" style="background:var(--gray); flex:1;">いいえ (経験はない)</button>
-            </div>
-            
-            <div id="diag-response-area" class="hidden">
-                <div class="pain-ans-box" id="diag-response-text"></div>
-                <button class="submit-btn" id="diag-next-btn" onclick="nextDiagnosisStep()" style="background:var(--primary);">次の質問へ進む</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="screen-chat" class="hidden">
-        <h1>専属ライフプランナー（AI相談ルーム）</h1>
-        <p style="font-size:0.85em; color:var(--gray); margin-bottom:10px;">※プレミアムプラン（診断通過者限定）が有効化されています。Workersバックエンドと動的通信可能です。</p>
-        <div class="chat-container">
-            <div class="chat-messages" id="chat-box">
-                <div class="chat-bubble ai">
-                    私はあなたのパラメータ（弱点）と、先ほど回答いただいた5つの深層診断結果をすべて記憶しています。二度と同じ実害を出さないための具体的な生活設計や、資産運用の最適化について何でも質問してください。
-                </div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="メッセージを入力してください..." onkeypress="if(event.keyCode==13) sendChatMessage()">
-                <button onclick="sendChatMessage()">送信</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const officialQuestions = [
-        { mainCategory: "消費", category: "【消費（最重要）】", text: "移動手段として自動車が必要になりました。あなたの行動は？", options: [
-            { text: "身の丈に合った中古の軽自動車やコンパクトカーを現金一括で買う", score: 2, exp: "資産価値の目減りを最小限に抑え、余計な金利手数料を完全に排除した最善の選択です。" },
-            { text: "必要な時だけカーシェアやレンタカー、公共交通機関で済ませる", score: 1, exp: "維持費（駐車場、税金、保険）を徹底的に削る合理的な判断です。" },
-            { text: "毎月の支払いが一定で管理しやすい、一般的なディーラーローン（残価設定型など）を組んで新車を買う", score: 0, exp: "【大衆の行動】購入した瞬間に車の価値は下がり、金利分だけ確実に損をしています。ローンという名の借金に麻痺しています。", advice: "自動車は負債です。どうしても新車が必要なら現金一括、ローンを組まなければ買えない車は「あなたの収入に見合っていない」と認識してください。" },
-            { text: "ステータスシンボルとして、高級外車を長期のフルローンで購入する", score: -1, exp: "【愚行】高金利の負債を抱え、見栄という無価値なもののために未来の自由を売り渡す破滅パターンです。", advice: "他人の目を気にして身の丈以上の借金を背負うのは即刻やめましょう。まずは自身の純資産をプラスにすることに集中してください。" }
-        ]},
-        { mainCategory: "投資", category: "【投資の勘違い（罠）】", text: "将来が不安になり、副業やスキルアップのために「自己投資」をしようと考えました。どうしますか？", options: [
-            { text: "無料の公開教材や数千円の古典的専門書を読み、まずは自分で小さな実践を始める", score: 2, exp: "コストを最小化し、実戦を通じて学ぶ最も投資対効果（ROI）が高いアプローチです。" },
-            { text: "国の教育訓練給付金などが適用される、実績のある資格スクールに通う", score: 1, exp: "制度を活用してコストを抑えつつ、明確なスキル習得を狙う堅実な判断です。" },
-            { text: "影響力のあるビジネス系インフルエンサーのオンラインサロンに加入し、最新の情報を得る", score: 0, exp: "【大衆の行動】インプットしただけで「学んだ気」になり、主催者の養分（毎月の固定費提供者）になっている状態に陥りがちです。", advice: "オンラインサロンの月額費用を、自分の手で小さなビジネス（サーバー代や広告費など）を立ち上げる資金に回してください。" },
-            { text: "短期間で高収入が得られると話題の副業コンサルティング（50万円）にローンを組んで申し込む", score: -1, exp: "【愚行】無知に付け込む情報弱者ビジネスの格好のカモです。楽に稼げる魔法は存在しません。", advice: "「誰でも簡単に稼げる」という言葉は100%詐欺です。安易な高額コンサルに頼る前に、自力で情報収集するリサーチ力を鍛えてください。" }
-        ]},
-        { mainCategory: "消費", category: "【消費と固定費】", text: "スマートフォンの契約や毎月の固定費を見直すタイミングが来ました。どうしますか？", options: [
-            { text: "即座に格安SIMの最安プランへ変更し、不要なサブスクはすべて解約する", score: 2, exp: "固定費の削減は、リスクゼロで確実に毎月のキャッシュフローを改善する最強の投資行動です。" },
-            { text: "クレジットカードの明細をすべて洗い出し、使っていないサービスを特定する", score: 1, exp: "支出を可視化し、無駄を発見するための正しい第一歩です。" },
-            { text: "ジムや動画配信のサブスクリプションは、いずれ使う機会があるため契約を継続する", score: 0, exp: "【大衆の行動】「いつか使うかも」という心理から、毎月少額ずつ資産を失い続ける典型的な浪費パターンです。", advice: "「過去3ヶ月利用していないサービス」は今すぐ解約してください。必要になった時に再契約すれば済む話です。" },
-            { text: "キャリアのデータ無制限プランを維持し、最新のハイスペックスマホを分割払いで購入する", score: -1, exp: "【愚行】必要以上のスペックに過剰な固定費を払い続ける、マネーリテラシー皆無の行動です。", advice: "スマホ本体の価格と通信費を切り離して考えてください。型落ちの端末を一括で購入し、格安SIMに乗り換えるだけで年間数万円が浮きます。" }
-        ]},
-        { mainCategory: "投資", category: "【資産運用】", text: "生活防衛資金とは別に、余剰資金が50万円ほど貯まりました。このお金をどうしますか？", options: [
-            { text: "税制優遇口座（新NISAなど）を開設し、全世界株のインデックスファンドに分散投資する", score: 2, exp: "資本主義の成長の果実を、最も手数料低く享受できる王道の長期資産形成です。" },
-            { text: "ネット銀行の預金口座など、少しでも金利が高く安全な場所に一時避難させる", score: 1, exp: "リスクをコントロールしつつ、現金の価値を守るための堅実な行動です。" },
-            { text: "安心感のある大手都市銀行の普通預金口座に入れておく", score: 0, exp: "【大衆の行動】一見安全に見えますが、物価上昇（インフレ）によって現金の価値が実質的に目減りしていく罠に気づいていません。", advice: "最低限の生活資金以外を金利がほぼゼロの口座に置くのは機会損失です。投資信託の仕組みを学び、少額からでも運用に回しましょう。" },
-            { text: "銀行や証券会社の窓口へ行き、担当者が推奨する投資信託や外貨建て保険を購入する", score: -1, exp: "【愚行】窓口の担当者は「あなたに儲けさせるため」ではなく「自社に高い手数料を入れるため」の商品を売っています。", advice: "金融機関の窓口には絶対に近づかないでください。投資は必ずネット証券を利用し、手数料（信託報酬）が0.2%以下の商品を選んでください。" }
-        ]},
-        { mainCategory: "消費", category: "【消費と住居】", text: "今後の住まい（家）の確保について、どのように計画を立てますか？", options: [
-            { text: "自分の収入とライフプランに見合った賃貸に住み、余剰資金を運用に回す", score: 2, exp: "ライフステージの変化に柔軟に対応でき、不動産という単一資産に過度なレバレッジをかけない合理的な戦略です。" },
-            { text: "住宅補助などの福利厚生を活用する、または資産価値の下がりにくい中古物件を徹底調査して買う", score: 1, exp: "コストを抑える、あるいは不動産の「資産価値」というシビアな現実に着目したスマートなアプローチです。" },
-            { text: "現在の家賃と同額の支払いで済む、新築の建売住宅を35年フルローンで購入する", score: 0, exp: "【大衆の行動】購入直後に建物の価値は数割下落します。修繕費や固定資産税を考慮しておらず、大きな負債を抱えるリスクがあります。", advice: "家賃とローンの返済額だけを比較するのは危険です。持ち家にかかる維持管理費や、将来の資産価値の目減りも含めてシミュレーションしてください。" },
-            { text: "将来の資産価値上昇を見込み、銀行の融資可能限度額まで借り入れて新築タワーマンションを購入する", score: -1, exp: "【愚行】金利上昇リスクや修繕積立金の高騰を考慮せず、希望的観測で人生最大の負債を背負い込む行動です。", advice: "融資限度額は「あなたが安全に返せる額」ではありません。金利が数パーセント上がっただけで破産するような過剰な借り入れは避けてください。" }
-        ]},
-        { mainCategory: "健康", category: "【健康と収入】", text: "今月の生活費が少し足りません。どうやって解決しますか？", options: [
-            { text: "固定費を徹底的に見直し、生活水準を根本から下げて支出を最適化する", score: 2, exp: "人生90年を走り抜ける資本（健康）を守りつつ、キャッシュフローを根本改善する最善の選択です。" },
-            { text: "不用品をフリマアプリで売却し、一時的な現金を確保する", score: 1, exp: "健康を害さず、かつ身の回りの整理にもなるため、一時的な資金繰りとしては適切な行動です。" },
-            { text: "日々の食費を大幅に切り詰め、安いインスタント食品を中心に生活する", score: 0, exp: "【大衆の行動】栄養失調による免疫力低下を招き、数年後に生活習慣病で浮いた額以上の医療費を払うことになります。", advice: "食費を削るのではなく「スマホの通信費」や「不要な保険」など、健康に直接影響を与えない固定費から削減を行ってください。" },
-            { text: "夜間や休日の時間を活用し、アルバイトや残業を増やして収入を補う", score: -1, exp: "【愚行】睡眠負債による自律神経の乱れで将来の医療費を増加させ、健康寿命を削って目先の小銭を得る選択です。", advice: "労働時間を増やすのではなく、十分な睡眠をとって日中の生産性を上げ、本業の単価アップや効率化を図るべきです。" }
-        ]},
-        { mainCategory: "健康", category: "【健康と予防医療】", text: "歯医者にはどのタイミングで行きますか？", options: [
-            { text: "自費の予防歯科も含め、3ヶ月に1回定期的なクリーニングと検診を欠かさない", score: 2, exp: "歯1本の価値（約100万円）を理解し、生涯の医療費を最小化する最も投資対効果の高い行動です。" },
-            { text: "半年に1回、カレンダーに予定を入れて定期検診に行く", score: 1, exp: "最低限の予防医療を実践できており、将来のリスクを軽減できています。" },
-            { text: "特に異常がなければ通わず、痛みが出たタイミングで受診する", score: 0, exp: "【大衆の行動】トラブルが起きてから対処する「後手」の対応であり、歯を削ったり失ったりするリスクが常に伴います。", advice: "「トラブルが起きてから」ではなく「トラブルを起こさないため」の定期メンテナンスをスケジュールに組み込むべきです。" },
-            { text: "痛みが我慢できなくなってから、市販の鎮痛剤が効かなくなった時点で駆け込む", score: -1, exp: "【愚行】神経を抜き、将来インプラント等で高額な出費と咀嚼機能の低下を招く、予防意識ゼロの行動です。", advice: "痛みがなくても、今すぐ定期健診（クリーニング）を予約してください。これが最も利回りの確実な自己投資です。" }
-        ]},
-        { mainCategory: "健康", category: "【健康と労働環境】", text: "転職のオファーが来ました。どちらを選びますか？", options: [
-            { text: "給料は下がるが、定時退社で毎日運動と自炊ができ、副業も許可されている企業", score: 2, exp: "「健康維持」と「個人で稼ぐ力」の両立を視野に入れた、人生90年時代における堅牢な戦略です。" },
-            { text: "現状維持の給料だが、フルリモートで働く時間や場所の自由が利く企業", score: 1, exp: "通勤ストレスを減らし、空いた時間を自己投資に回せるため、長期的な期待値は高いです。" },
-            { text: "給与が1.5倍になり、土日はクライアントとのゴルフや接待が多くなる企業", score: 0, exp: "【大衆の行動】収入は増えますが、自分自身の休息や運動の時間が失われ、中長期的に体を壊しやすい環境です。", advice: "収入が増えても、それを楽しむ時間と健康がなければ意味がありません。自分の時間を確保できる働き方を交渉すべきです。" },
-            { text: "年収が2倍になるが、深夜までの残業が常態化しており競争の激しい企業", score: -1, exp: "【愚行】心身のバランスを崩し、結果的に長期間の休職や医療費増大を招くリスクが極めて高い選択です。", advice: "「心身の健康」は一度壊れると元の状態に戻るのに膨大な時間とコストがかかります。目先の金額だけで判断してはいけません。" }
-        ]},
-        { mainCategory: "健康", category: "【健康と生活習慣】", text: "仕事が忙しい時期の運動習慣はどうしていますか？", options: [
-            { text: "どんなに忙しくても、睡眠と1日30分の有酸素運動（または筋トレ）の時間は絶対に確保する", score: 2, exp: "脳のパフォーマンスを最大化し、長期的な生産性を落とさないトップ層の自己管理能力です。" },
-            { text: "通勤時間を利用して一駅分歩くなど、日常に運動を組み込んでいる", score: 1, exp: "時間を有効活用しながら基礎的な活動量を確保できている良い習慣です。" },
-            { text: "平日は仕事に集中し、週末にまとめてジムでトレーニングを行う", score: 0, exp: "【大衆の行動】平日の長時間の座り仕事による健康被害を、週末の運動だけでは完全に相殺することはできません。", advice: "週末の運動だけでなく、平日の「こまめに立ち上がる」「階段を使う」といった日常的な活動量（NEAT）を増やす工夫が必要です。" },
-            { text: "栄養ドリンクを活用してデスクワークに集中し、運動は一時的に控える", score: -1, exp: "【愚行】血流悪化とカフェイン過多により将来の疾患リスクを高め、一時的な集中力と引き換えに寿命を削る行為です。", advice: "栄養ドリンクへの依存を減らし、まずは1日15分の散歩やストレッチから血流を改善する習慣を取り入れてください。" }
-        ]},
-        { mainCategory: "健康", category: "【健康と嗜好品】", text: "仕事で強いストレスを感じた時、どうやって解消しますか？", options: [
-            { text: "サウナ、瞑想、軽い運動など、身体を整えることで脳の疲労を物理的に抜く", score: 2, exp: "自律神経を意図的にコントロールし、翌日以降の生産性を高める自己投資としてのストレス解消法です。" },
-            { text: "気心の知れた少数の友人と、適度な食事や会話を楽しむ", score: 1, exp: "社会的な繋がりによる安心感で、健康的にストレスを緩和できています。" },
-            { text: "深夜まで好きなドラマや映画を視聴して、自分の時間を満喫する", score: 0, exp: "【大衆の行動】一時的な気分転換にはなりますが、睡眠不足を招き、翌日のパフォーマンス低下に繋がります。", advice: "夜更かしによるスクリーンタイムを制限し、良質な睡眠をとることこそが最大のストレス解消（脳の回復）になります。" },
-            { text: "お酒や美味しいものをたくさん飲食したり、パチンコ等の娯楽でパーッと発散する", score: -1, exp: "【愚行】内臓に負担をかけ、お金を失い、さらに疲労を溜め込む「負の連鎖」を引き起こします。", advice: "ストレスの原因を根本から絶つか、運動や睡眠など「後味が良く、翌日の活力になる」解消法に置き換えてください。" }
-        ]},
-        { mainCategory: "時間", category: "【時間と学習】", text: "新しいビジネススキルを習得したい時、どうしますか？", options: [
-            { text: "基礎概念の理解にあえて膨大な時間をかけ、自分の手で実際にプロトタイプを作りながら試行錯誤する", score: 2, exp: "本質的な構造を深く理解することで、後からあらゆる応用が利く「真のタイムパフォーマンス」を実現する王道です。" },
-            { text: "実績のある専門書を数冊買い、週末にまとめて時間を取って読む", score: 1, exp: "体系的な知識を得るための正しいアプローチであり、着実に実力はつきます。" },
-            { text: "SNSで要点がまとまった図解や「これだけやればOK」という投稿を保存する", score: 0, exp: "【大衆の行動】情報を集めただけで満足し、体系的な知識や実践的なスキルが身についていない状態に陥りがちです。", advice: "断片的なTipsの収集をやめ、その分野の専門書を1冊じっくりと読み込み、実際に手を動かして基礎を固めてください。" },
-            { text: "タイパを重視し、書籍の要約動画を倍速で視聴して全体像を把握する", score: -1, exp: "【愚行】表面的な情報をなぞっただけで脳に定着せず、いざ実務となると何もできない状態を生み出します。", advice: "要約はあくまで「目次」です。本当に必要なスキルなら、一次情報や専門書を精読する時間を惜しまないでください。" }
-        ]},
-        { mainCategory: "時間", category: "【時間と人脈】", text: "仕事やビジネスでの「人脈作り」をどう考えますか？", options: [
-            { text: "すぐには利益にならないが、互いの哲学に共感できる少数の相手と、数年単位で深い対話を重ねる", score: 2, exp: "利害関係を超えた深い信頼関係こそが、有事の際に自分を救う最大の無形資産となります。" },
-            { text: "今目の前にいるクライアントや同僚の期待値を少しだけ超える仕事を継続する", score: 1, exp: "地道な努力ですが、結果的にそれが最強のリファラル（紹介）を生む本質的な人脈構築です。" },
-            { text: "影響力のあるインフルエンサーに積極的に絡み、認知してもらおうとする", score: 0, exp: "【大衆の行動】他人の影響力に依存する思考であり、自分自身に提供できる価値がなければ関係は長続きしません。", advice: "他人に引き上げてもらうことを期待するより、まずは自分自身が「誰かの役に立つ専門性」を磨き上げるべきです。" },
-            { text: "大規模な異業種交流会に参加し、できるだけ多くの人と名刺交換をして後日一斉に案内を送る", score: -1, exp: "【愚行】効率を履き違えたスパム的なアプローチであり、自身の信用を構築するどころか低下させます。", advice: "薄い繋がりを100人作るより、あなたのスキルや人格を深く信頼してくれる1人を圧倒的に喜ばせることに全力を注いでください。" }
-        ]},
-        { mainCategory: "時間", category: "【時間と業務改善】", text: "職場で手作業のエラー（ミス）が頻発しています。どう対応しますか？", options: [
-            { text: "根本原因を分析し、AIやシステム連携を用いて「人間が介在しない完全自動化」を構築する", score: 2, exp: "最初の手間を惜しまず、永続的な不労所得（時間の創出）を生み出すシステムクリエイターの思考です。" },
-            { text: "エクセルのマクロや既存のSaaSツールを導入し、手作業の工程を半分に減らす", score: 1, exp: "テクノロジーを利用してミスを減らしつつ時間を生み出す、論理的な業務改善です。" },
-            { text: "ミスの原因を防ぐため、詳細なマニュアルを作成して複数人でのダブルチェック体制を敷く", score: 0, exp: "【大衆の行動】人間の注意力に依存した解決策であり、チェックのための人件費（時間）が永続的に増えるだけです。", advice: "「人が気をつける」のではなく「システム的にエラーが出せない」構造へとプロセス自体を再設計すべきです。" },
-            { text: "現状は業務が忙しいためシステム改修は見送り、ミスが起きた際に個別で丁寧に対応・修正する", score: -1, exp: "【愚行】目先の時間を優先した結果、将来にわたって膨大な修正作業と信用の低下を垂れ流し続けます。", advice: "業務を一度止めてでも、プログラミングやツールを使って「二度と同じミスが起きない仕組み」を作ることに時間を投資してください。" }
-        ]},
-        { mainCategory: "時間", category: "【時間と情報収集】", text: "毎日の情報収集はどのように行っていますか？", options: [
-            { text: "情報収集の時間を最小限に絞り、大半の時間を「得た知識を自らの手で出力（実行・検証）する時間」に充てる", score: 2, exp: "インプットとアウトプットの黄金比を理解し、実行によってのみ現実が変わることを知っている行動です。" },
-            { text: "信頼できる専門家の長文記事やニュースレターを、時間を決めて読む", score: 1, exp: "ノイズを遮断し、文脈を含めて深く情報を理解できている良い習慣です。" },
-            { text: "スマートフォンのニュースアプリを活用し、幅広いジャンルの見出しを毎日チェックする", score: 0, exp: "【大衆の行動】広く浅く知ることはできますが、一次情報にあたらないため本質的な理解には至りません。", advice: "見出しを追うのをやめ、自分の専門分野に関する「一次情報（海外の公式発表やデータなど）」を能動的に取りに行く習慣をつけましょう。" },
-            { text: "ショート動画のアルゴリズムを活用し、次々と流れてくる有益な情報をスキマ時間に視聴する", score: -1, exp: "【愚行】受動的に情報を浴びているだけであり、プラットフォームに可処分時間を搾取されている状態です。", advice: "目的のない「受動的な情報収集」は時間の浪費です。アルゴリズムによる動画視聴を制限し、能動的な学習に切り替えてください。" }
-        ]},
-        { mainCategory: "時間", category: "【時間と事業構築】", text: "ビジネスやSNS等で結果を出したい時、どういう戦略をとりますか？", options: [
-            { text: "結果が出るまで数年かかる前提で、自動化と継続性を最優先にした「無理のない仕組み」を淡々と回し続ける", score: 2, exp: "短期的な勝敗を捨て、長期的な生存と複利効果を取りに行く最強のディフェンス戦略です。" },
-            { text: "外注化やAIツールを駆使し、作業を効率化しながら品質を担保して継続する", score: 1, exp: "時間をレバレッジ（テコ）にしながら、品質を落とさずに継続する堅実な戦略です。" },
-            { text: "現在最も需要が伸びているトレンド市場に素早く参入し、ブームが過ぎたら次の市場へ移る", score: 0, exp: "【大衆の行動】一時的な収益は得られますが、常に自転車操業となり、自身のブランドという資産が積み上がりません。", advice: "トレンドに乗るだけでなく、その根底に「流行り廃りのない不変のテーマ」を持たせ、資産が積み上がる構造を設計すべきです。" },
-            { text: "初期の露出を増やすため、目を引く刺激的なタイトルを使ったり、プロモーション機能でフォロワーを獲得する", score: -1, exp: "【愚行】本質的な価値提供を怠り、見せかけの数字を追うことで、長期的な信用構築の機会を失います。", advice: "虚構の数字を追うのをやめ、目の前の1人に刺さる確かな価値提供を泥臭くやり直してください。信用は一朝一夕では築けません。" }
+    let ugcDatabase = [
+        { mainCategory: "消費", category: "【UGC: 浪費の罠】", text: "「初回無料」のサブスクリプションを登録した後、どう対処しますか？", options: [
+            { text: "カレンダーに解約日をアラーム設定しておく", score: 2, exp: "自己管理能力が高いです。" }, 
+            { text: "無料期間が終わる前に手動で解約する", score: 1, exp: "基本はできています。" }, 
+            { text: "忘れていて1ヶ月分だけ払ってしまう", score: 0, exp: "企業の狙い通りです。" }, 
+            { text: "解約方法が分からず放置する", score: -1, exp: "最悪の養分です。" }
         ]}
     ];
 
-    // ★普遍的な「痛みの掘り起こし」診断質問5問データ
-    const painDiagnosisQuestions = [
-        { label: "【消費の痛み】", text: "口座残高やクレジットカードの請求明細を見て、「あれ、今月これだけしか残っていないの？」と冷や汗をかいたり、月末の支払いに追われて胃が痛くなるような思いをした経験はありますか？", 
-          yes: "素晴らしい。あなたはキャッシュフローがマイナスになる恐怖を正しく認識できています。その胃の痛くなるような焦りこそが、現状を変える最強のトリガーです。その恐怖を二度と味わわないため、感情や意志力に頼らない「固定費の物理的破壊」と「強制天引きシステム」の構築に直ちに着手しましょう。", 
-          no: "完璧な資金管理ができているのであれば問題ありません。しかし、もし「現実の数字（引き落とし額）を見るのが怖くて目を背けているだけ」であれば、行き着く先は突然の自己破産です。自覚なき浪費は静かにあなたの首を絞めています。直ちに支出の完全な監査を実施することを推奨します。" },
-        { label: "【健康の痛み】", text: "「どれだけ休んでも疲れが取れない」という慢性的なダルさや、あるいは突然の激痛や疾患など、身体が悲鳴を上げたことで初めて自らの不摂生な生活習慣を激しく後悔した経験はありますか？", 
-          yes: "過去の激痛や身体の悲鳴は、人生における最強の警告機能です。ある日突然襲いかかる関節の激痛が、その後の飲酒や喫煙といった悪習慣を完全に断ち切る絶対的な動機となるように、人間は「あの苦痛を二度と味わいたくない」と骨の髄で理解した時にのみ本質的に変われます。その痛みの記憶を無駄にせず、二度と再発させないための堅牢な防衛システム（生活習慣の再設計）を今すぐ構築しましょう。", 
-          no: "あなたは現在、若さや遺伝という「期間限定のボーナス」を食いつぶして生きている状態です。健康の負債は複利で膨らみ、無症状のまま進行します。痛みとなって表面化した時には、手遅れの医療費という莫大な金銭的ペナルティが確定します。未病の段階で予防に投資するロードマップの作成が必要です。" },
-        { label: "【時間の痛み】", text: "毎日忙しく働き、スキマ時間にも有益な情報を集めているつもりなのに、ふと振り返ると「1年前と比べて、自分の実力や資産が全く積み上がっていない」という強烈な焦りや虚無感を感じたことはありますか？", 
-          yes: "「インプットしただけで何も積み上がっていない」という絶望感に気づけたことは、大きな一歩です。それは、アルゴリズムに可処分時間を搾取され、他人のコンテンツの養分になっていた証拠です。今日から「受動的な消費」を完全に断ち切り、システム構築や発信といった「自らの資産を生み出す実行」へ時間を100%シフトさせる計画を立てましょう。", 
-          no: "毎日、確実に自らの資産とスキルが複利で成長していると断言できるなら、現在の行動を継続してください。しかし、もし「毎日忙しい」こと自体を「前に進んでいる」と錯覚しているのだとすれば、あなたの市場価値は相対的に下落し続けています。時間の使い方の抜本的な構造改革が必要です。" },
-        { label: "【投資・学習の痛み】", text: "「現状を変えたい」と自己投資やノハウにお金を使ったにもかかわらず、結局なにも身につかず、「ただお金と時間を無駄に搾取されただけだった」と気づいた苦い経験はありますか？", 
-          yes: "あなたが失ったその金額は、高すぎる「無知の授業料」でした。しかし、「楽して稼げる魔法はない」「高額な対価を払っても他人は自分を救ってくれない」という残酷な真実を学んだことで、あなたは情報弱者から脱脱しました。もう二度と搾取されないための、地味で堅実な「自動化と継続」の仕組み作りを始めましょう。", 
-          no: "これまで罠を回避してきたあなたのリサーチ能力は優秀です。しかし、現在あなたが支払っているオンラインサロンやサブスクリプションの費用は、本当に「投資対効果（ROI）」を生み出していますか？「所属している安心感」にお金を払っているだけならば、それは投資ではなくただの浪費です。冷徹な費用対効果の算出が必要です。" },
-        { label: "【決断の痛み】", text: "「あの時、面倒くさがらずにすぐ見直していれば、こんな大損はしなかったのに」と、自身の『決断を後回しにする癖』によって明確な実害（金銭的・時間的ペナルティ）を被り、二度と同じ失敗はしないと誓った決定的な出来事はありますか？", 
-          yes: "決断の先送り（プロクラスティネーション）は性格の問題ではなく、環境とシステムの欠陥です。後回しによって被ったその金銭的・時間的ペナルティを、二度と繰り返してはなりません。「人間の意志は必ず負ける」という前提に立ち、システムが自動的に最適解を選択するような「選択の排除」を設計する必要があります。", 
-          no: "全ての事象に対して、即座に最も合理的な決断を下し続けてきたのであれば、あなたは上位1%のトップ層です。しかし、もし「後回しにしたことによる見えない機会損失」に気づいてすら いないのだとすれば、それは最も危険な状態です。あなたが行動しなかった間に失われた利益を、一度正確に可視化する必要があります。" }
-    ];
-
-    let ugcDatabase = [...ugcDatabase]; 
     let currentMode = ''; let questions = []; let currentIdx = 0; let scoreLog = [];
     let categoryScores = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
     let categoryMax = { "消費": 0, "投資": 0, "健康": 0, "時間": 0 };
-    let diagIdx = 0; // 痛みの診断用インデックス
+    let diagIdx = 0;
+
+    const ngWords = ["死ね", "殺す", "馬鹿", "バカ", "アホ", "ゴミ", "クズ", "カス", "ウンコ", "詐欺", "犯罪", "自殺", "レイプ", "暴力"];
 
     function switchTab(tab) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1175,7 +506,6 @@
         if (lossAmount === 0 || totalScore === totalMax) {
             oracleBox.innerHTML = `【現状分析】全パラメータが極めて優秀です。大衆の罠に陥るリスクはありません。<br><br>【即時実行タスク】現在の行動を継続し、余剰資金はすべて事業かインデックス投資に回してください。`;
         } else {
-            // 小数点以下四捨五入（Math.round）を適用
             const lossString = Math.round(lossAmount / 10000).toLocaleString() + '万';
             let adviceText = "";
             if (worstCategory === "時間") adviceText = "直ちに目的のないショート動画の視聴を停止し、一次情報へのアクセスと実証実験にのみ可処分時間を投資してください。";
@@ -1208,7 +538,6 @@
         });
     }
 
-    // ★新設: 痛みの掘り起こし診断ロジック (映画診断風システム)
     function startPainDiagnosis() {
         diagIdx = 0;
         switchTab('diagnosis');
@@ -1221,7 +550,6 @@
         document.getElementById('diag-step-label').textContent = `深層問診 ${diagIdx + 1} / 5 ${q.label}`;
         document.getElementById('diag-question-text').textContent = q.text;
         
-        // UIリセット
         document.getElementById('diag-button-group').classList.remove('hidden');
         document.getElementById('diag-response-area').classList.add('hidden');
     }
@@ -1247,21 +575,17 @@
         if (diagIdx < painDiagnosisQuestions.length) {
             loadDiagnosisQuestion();
         } else {
-            // 5問終了後、決済なしで即チャット画面へ遷移
             alert("深層問診が完了しました。あなた専用のAI相談チャットルームのロックを解除しました。");
             switchTab('chat');
         }
     }
 
-    // ★新設: バックエンドURLを連携した有料チャット機能 (決済判定なし)
     async function sendChatMessage() {
         const input = document.getElementById('chat-input');
         const text = input.value.trim();
         if (!text) return;
 
         const chatBox = document.getElementById('chat-box');
-        
-        // ユーザーの吹き出し追加
         const userDiv = document.createElement('div');
         userDiv.className = 'chat-bubble user';
         userDiv.textContent = text;
@@ -1269,7 +593,6 @@
         input.value = '';
         chatBox.scrollTop = chatBox.scrollHeight;
 
-        // タイピング中(ローディング)のダミー表示
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'chat-bubble ai';
         loadingDiv.textContent = '思考中...';
@@ -1277,7 +600,6 @@
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try {
-            // 指定されたWorkersのバックエンドゲートウェイURLへPOST送信
             const response = await fetch('https://kurolo-gateway.kulostfpv.workers.dev/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1292,12 +614,10 @@
                 const data = await response.json();
                 aiDiv.textContent = data.reply || "バックエンドからの応答を受信しました。";
             } else {
-                // HTTPエラー時のプロトタイプ用フォールバック
                 aiDiv.textContent = `【プロトタイプ応答】バックエンド(Workers)へのデータ送信は成功（ステータス: ${response.status}）しました。本番環境ではここにGeminiの返答が出力されます。`;
             }
             chatBox.appendChild(aiDiv);
         } catch (error) {
-            // ネットワークエラー、CORS制限時のフォールバック
             chatBox.removeChild(loadingDiv);
             const aiDiv = document.createElement('div');
             aiDiv.className = 'chat-bubble ai';
@@ -1307,7 +627,6 @@
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // 以下、UGCおよび既存のユーティリティ（前回の仕様を完全維持）
     function updateUGCResultScreen() {
         const totalScore = scoreLog.reduce((sum, item) => sum + item.score, 0);
         document.getElementById('ugc-score').textContent = `${totalScore} 点`;
@@ -1327,6 +646,14 @@
             `;
             resList.appendChild(div);
         });
+    }
+
+    function isValidQuestion(text) {
+        if (text.length < 15) return { valid: false, reason: "問題文が短すぎます。具体的な状況を15文字以上で記述してください。" };
+        if (/(.)\1{3,}/.test(text)) return { valid: false, reason: "無意味な連続文字が含まれています。" };
+        if (!/[ぁ-んァ-ン一-龥]/.test(text)) return { valid: false, reason: "日本語の文章として認識できません。" };
+        if (!/[。？?]/g.test(text)) return { valid: false, reason: "文章が成立していません。文末に「。」や「？」をつけてください。" };
+        return { valid: true };
     }
 
     function addCustomQuestion() {
